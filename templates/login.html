@@ -1,0 +1,2231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIRI BANK | Autonomous Voice-First AI Banking</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Main Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bank-navy: #0f172a;
+            --bank-blue: #2563eb;
+            --bank-indigo: #4f46e5;
+            --bank-cyan: #0ea5e9;
+            --bank-emerald: #10b981;
+            --bank-amber: #f59e0b;
+            --bank-slate: #f8fafc;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Sticky Modern Header */
+        .portal-header {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #0f172a;
+        }
+        .brand-emblem {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #4f46e5 0%, #0ea5e9 100%);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        .brand-name {
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            color: #0f172a;
+            line-height: 1;
+        }
+        .brand-pill {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 6px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .lang-switch {
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 20px;
+            display: inline-flex;
+            border: 1px solid #cbd5e1;
+        }
+        .lang-btn {
+            border: none;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lang-btn.active {
+            background: #4f46e5;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+        }
+        .lang-btn:not(.active) {
+            background: transparent;
+            color: #64748b;
+        }
+
+        /* The 2 Primary Action Buttons */
+        .btn-nav-login {
+            background: #ffffff;
+            color: #1e293b;
+            border: 1.5px solid #cbd5e1;
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-nav-login:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+            background: #eff6ff;
+            transform: translateY(-1px);
+        }
+
+        .btn-nav-register {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-nav-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.08) 0%, rgba(14, 165, 233, 0.05) 50%, rgba(248, 250, 252, 1) 100%);
+            padding: 4rem 2rem 5rem;
+            position: relative;
+        }
+        .hero-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 3.5rem;
+            align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title {
+            font-size: 3.2rem;
+            font-weight: 900;
+            line-height: 1.15;
+            color: #0f172a;
+            margin-bottom: 1.25rem;
+            letter-spacing: -1px;
+        }
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, #4f46e5 0%, #0ea5e9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 1.15rem;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+        .hero-cta-open {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .hero-cta-open:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.45);
+        }
+
+        .hero-cta-login {
+            background: #ffffff;
+            color: #0f172a;
+            border: 2px solid #cbd5e1;
+            padding: 15px 30px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+        .hero-cta-login:hover {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            background: #f8fafc;
+            transform: translateY(-3px);
+        }
+
+        .trust-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #475569;
+        }
+        .trust-item i {
+            color: #10b981;
+        }
+
+        /* AI Smart Assistant Hero Terminal Card */
+        .assistant-terminal-card {
+            background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 100%);
+            border-radius: 28px;
+            padding: 2.2rem;
+            color: white;
+            box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+        .assistant-terminal-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.25) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 12px #10b981;
+            animation: pulse-glow 2s infinite;
+        }
+
+        .sound-wave {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 28px;
+        }
+        .sound-bar {
+            width: 4px;
+            background: linear-gradient(to top, #0ea5e9, #38bdf8);
+            border-radius: 4px;
+            animation: waveAnim 1.2s infinite ease-in-out;
+        }
+        .sound-bar:nth-child(2) { animation-delay: 0.2s; height: 18px; }
+        .sound-bar:nth-child(3) { animation-delay: 0.4s; height: 26px; }
+        .sound-bar:nth-child(4) { animation-delay: 0.1s; height: 14px; }
+        .sound-bar:nth-child(5) { animation-delay: 0.3s; height: 22px; }
+
+        @keyframes waveAnim {
+            0%, 100% { transform: scaleY(0.4); }
+            50% { transform: scaleY(1); }
+        }
+
+        .assistant-chips-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .chips-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .ai-chip {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #f1f5f9;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ai-chip:hover {
+            background: rgba(79, 70, 229, 0.3);
+            border-color: #818cf8;
+            transform: translateX(4px);
+        }
+
+        .btn-talk-siri {
+            width: 100%;
+            background: linear-gradient(135deg, #4f46e5 0%, #0ea5e9 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+            transition: all 0.3s;
+        }
+        .btn-talk-siri:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(79, 70, 229, 0.5);
+        }
+
+        /* Offers Section */
+        .section-wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 4.5rem 2rem;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+        .section-tag {
+            color: #4f46e5;
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+        .section-heading {
+            font-size: 2.4rem;
+            font-weight: 900;
+            color: #0f172a;
+            margin: 0 0 12px 0;
+            letter-spacing: -0.5px;
+        }
+        .section-sub {
+            color: #64748b;
+            font-size: 1.05rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* Offers Grid */
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        .offer-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        }
+        .offer-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e1;
+        }
+        .offer-card.featured {
+            border: 2px solid #4f46e5;
+            background: linear-gradient(180deg, #ffffff 0%, #f5f3ff 100%);
+        }
+        .offer-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #fee2e2;
+            color: #dc2626;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+        .offer-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 1.25rem;
+        }
+        .offer-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .offer-rate {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #4f46e5;
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+        .offer-rate span {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+        .offer-desc {
+            color: #64748b;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            flex: 1;
+        }
+        .offer-btn {
+            background: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            width: 100%;
+        }
+        .offer-btn:hover {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+
+        /* Interactive Calculator */
+        .calc-wrapper {
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+            border-radius: 28px;
+            padding: 3rem;
+            color: white;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 3rem;
+            align-items: center;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+            margin-top: 3rem;
+        }
+        .calc-slider-group {
+            margin-bottom: 1.5rem;
+        }
+        .calc-slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+        }
+        .calc-slider {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+        .calc-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            background: #0ea5e9;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+        }
+        .calc-result-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+        }
+        .calc-returns {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: #38bdf8;
+            margin: 8px 0;
+        }
+
+        /* Features Section */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+        }
+        .feature-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        .feature-card:hover {
+            border-color: #38bdf8;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.05);
+        }
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: #eff6ff;
+            color: #2563eb;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1.2rem;
+        }
+
+        /* Modal Overlay for Login & Register */
+        .auth-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .auth-modal-window {
+            background: #ffffff;
+            border-radius: 24px;
+            max-width: 480px;
+            width: 100%;
+            padding: 2.5rem;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+        @keyframes modalPopIn {
+            from { transform: scale(0.92) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f1f5f9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .modal-close-btn:hover {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        /* Voice register assist card */
+        .voice-register-card {
+            background: linear-gradient(135deg, #4f46e5 0%, #0ea5e9 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25);
+            transition: transform 0.2s;
+            text-align: left;
+        }
+        .voice-register-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .portal-footer {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 4rem 2rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.5fr repeat(3, 1fr);
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        .footer-col h4 {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+        }
+        .footer-col ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .footer-col li {
+            margin-bottom: 10px;
+            font-size: 0.88rem;
+        }
+        .footer-bottom {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero-container { grid-template-columns: 1fr; gap: 2rem; }
+            .calc-wrapper { grid-template-columns: 1fr; padding: 2rem; }
+            .footer-container { grid-template-columns: 1fr 1fr; }
+            .hero-title { font-size: 2.4rem; }
+        }
+        /* Upload Dropzones */
+        .upload-dropzone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 12px 14px;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 72px;
+            margin-top: 4px;
+        }
+        .upload-dropzone:hover {
+            border-color: #0284c7;
+            background: #f0f9ff;
+        }
+        .upload-dropzone.has-file {
+            border-color: #10b981;
+            background: #f0fdf4;
+            border-style: solid;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Main Navigation Bar -->
+    <header class="portal-header">
+        <a href="/" class="brand-logo">
+            <div class="brand-emblem"><i class="fa-solid fa-building-columns"></i></div>
+            <div>
+                <span class="brand-name">SIRI<span style="color: #4f46e5;">BANK</span></span>
+                <span class="brand-pill">AI POWERED</span>
+            </div>
+        </a>
+
+        <div class="header-actions">
+            <!-- Language Switcher: Instant client-side DOM mutation without page refresh -->
+            <div class="lang-switch">
+                <button type="button" id="btn-lang-kn" class="lang-btn {% if language == 'Kannada' %}active{% endif %}" onclick="changeLanguage('Kannada')">ಕನ್ನಡ</button>
+                <button type="button" id="btn-lang-en" class="lang-btn {% if language != 'Kannada' %}active{% endif %}" onclick="changeLanguage('English')">English</button>
+            </div>
+
+            <!-- THE 2 PRIMARY USER CHOICES: LOGIN OR REGISTER -->
+            <button type="button" class="btn-nav-login" id="btn-nav-login" onclick="openAuthModal('login')">
+                <i class="fa-solid fa-arrow-right-to-bracket" style="color: #2563eb;"></i>
+                <span>{% if language == 'Kannada' %}ಖಾತೆಗೆ ಲಾಗಿನ್{% else %}Login to Account{% endif %}</span>
+            </button>
+
+            <button type="button" class="btn-nav-register" id="btn-nav-register" onclick="openAuthModal('register')">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>{% if language == 'Kannada' %}ಹೊಸ ಖಾತೆ ತೆರೆಯಿರಿ{% else %}Open Account{% endif %}</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <!-- Hero Left Content -->
+            <div>
+                <div class="hero-badge" id="hero-badge">
+                    <i class="fa-solid fa-wand-magic-sparkles" style="color: #2563eb;"></i>
+                    <span>{% if language == 'Kannada' %}AI ಚಾಲಿತ ಸ್ಮಾರ್ಟ್ ಬ್ಯಾಂಕಿಂಗ್ ಸಹಾಯಕ{% else %}AI Powered Smart Banking Assistant{% endif %}</span>
+                </div>
+
+                <h1 class="hero-title" id="hero-title">
+                    {% if language == 'Kannada' %}
+                    ನಿಮ್ಮದೇ <span class="gradient-text">ಧ್ವನಿಯಲ್ಲಿ ಸ್ಮಾರ್ಟ್</span> ಮತ್ತು ಸುರಕ್ಷಿತ ಬ್ಯಾಂಕಿಂಗ್.
+                    {% else %}
+                    Smarter, Safer Banking in <span class="gradient-text">Your Own Voice.</span>
+                    {% endif %}
+                </h1>
+
+                <p class="hero-desc" id="hero-desc">
+                    {% if language == 'Kannada' %}
+                    ಗಂಟೆಗಟ್ಟಲೆ ಸರತಿಯಲ್ಲಿ ನಿಲ್ಲದೆ, ಕೇವಲ ಕನ್ನಡ ಅಥವಾ ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ಮಾತನಾಡುವ ಮೂಲಕ 2 ನಿಮಿಷಗಳಲ್ಲಿ ಖಾತೆ ತೆರೆಯಿರಿ, ಹಣ ಕಳುಹಿಸಿ ಮತ್ತು ಕಾರ್ಡ್ ನಿರ್ವಹಿಸಿ. ಗೂಗಲ್ ಜೆಮಿನಿ AI ಚಾಲಿತ ಸ್ವಾಯತ್ತ ಬ್ಯಾಂಕಿಂಗ್!
+                    {% else %}
+                    Experience zero-friction digital banking powered by Google Gemini AI & WebRTC. Open an account in 2 minutes, transfer funds, check balances, and freeze cards simply by speaking naturally in Kannada or English.
+                    {% endif %}
+                </p>
+
+                <!-- 2 Big Prominent Call-to-Actions -->
+                <div class="hero-ctas">
+                    <button class="hero-cta-open" id="btn-hero-register" onclick="openAuthModal('register')">
+                        <i class="fa-solid fa-sparkles"></i>
+                        <span>{% if language == 'Kannada' %}ಹೊಸ ಖಾತೆ ತೆರೆಯಿರಿ (ನೋಂದಣಿ){% else %}Open New Account (Register){% endif %}</span>
+                    </button>
+                    <button class="hero-cta-login" id="btn-hero-login" onclick="openAuthModal('login')">
+                        <i class="fa-solid fa-key" style="color: #4f46e5;"></i>
+                        <span>{% if language == 'Kannada' %}ಖಾತೆಗೆ ಲಾಗಿನ್ ಮಾಡಿ{% else %}Login to Account{% endif %}</span>
+                    </button>
+                </div>
+
+                <!-- Trust Metrics -->
+                <div class="trust-grid">
+                    <div class="trust-item" id="trust-1"><i class="fa-solid fa-circle-check"></i> <span>{% if language == 'Kannada' %}₹0 ಕನಿಷ್ಠ ಬ್ಯಾಲೆನ್ಸ್{% else %}Zero Min Balance{% endif %}</span></div>
+                    <div class="trust-item" id="trust-2"><i class="fa-solid fa-circle-check"></i> <span>{% if language == 'Kannada' %}2 ನಿಮಿಷದಲ್ಲಿ e-KYC{% else %}2-Min Live e-KYC{% endif %}</span></div>
+                    <div class="trust-item" id="trust-3"><i class="fa-solid fa-circle-check"></i> <span>{% if language == 'Kannada' %}100% ಧ್ವನಿ ಮಾರ್ಗದರ್ಶನ{% else %}100% Voice-Guided{% endif %}</span></div>
+                    <div class="trust-item" id="trust-4"><i class="fa-solid fa-circle-check"></i> <span>{% if language == 'Kannada' %}256-ಬಿಟ್ ಬ್ಯಾಂಕಿಂಗ್ ಭದ್ರತೆ{% else %}Bank-Grade Security{% endif %}</span></div>
+                </div>
+            </div>
+
+            <!-- Hero Right: Interactive AI Smart Banking Assistant Terminal -->
+            <div id="assistant">
+                <div class="assistant-terminal-card">
+                    <div class="terminal-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="pulse-dot"></span>
+                            <span style="font-weight: 800; font-size: 0.95rem;">AI Powered Smart Banking Assistant</span>
+                        </div>
+                        <div class="sound-wave" title="Audio intelligence active">
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1.2rem;">
+                        <p id="assistant-intro" style="margin: 0; font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">
+                            {% if language == 'Kannada' %}
+                            ನಮಸ್ಕಾರ! ನಾನು ಸಿರಿ, ನಿಮ್ಮ AI ಬ್ಯಾಂಕಿಂಗ್ ಸಹಾಯಕ. ಬಡ್ಡಿದರಗಳು, ಖಾತೆ ತೆರೆಯುವಿಕೆ ಅಥವಾ ಕೊಡುಗೆಗಳ ಕುರಿತು ಕನ್ನಡದಲ್ಲೇ ಮಾತನಾಡಿ ಕೇಳಿ!
+                            {% else %}
+                            Hello! I am SIRI, your Autonomous AI Banking Assistant. Ask me about interest rates, account opening, or loan offers hands-free in Kannada or English!
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Wake word prompt banner -->
+                    <div id="wake-word-banner" style="background: rgba(56, 189, 248, 0.12); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 8px 12px; font-size: 0.78rem; color: #7dd3fc; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-microphone-lines fa-fade"></i>
+                        <span>{% if language == 'Kannada' %}ವೇಕ್ ವರ್ಡ್: <strong>"ಹೇ ಸಿರಿ"</strong> ಅಥವಾ <strong>"ನಮಸ್ಕಾರ"</strong> ಎಂದು ಹೇಳಿ{% else %}Wake Word: Say <strong>"Hey Siri"</strong> or <strong>"Namaskara"</strong>{% endif %}</span>
+                    </div>
+
+                    <!-- Quick Query Chips -->
+                    <div class="assistant-chips-title" id="chips-title">
+                        {% if language == 'Kannada' %}ತ್ವರಿತ ಧ್ವನಿ ಪ್ರಶ್ನೆಗಳು (ಕ್ಲಿಕ್ ಮಾಡಿ):{% else %}Popular Inquiries (Click to Ask):{% endif %}
+                    </div>
+                    <div class="chips-container">
+                        <div class="ai-chip" id="chip-1" onclick="askSiriDirect('What are your FD interest rates?')">
+                            <span><i class="fa-solid fa-percent" style="color: #38bdf8; margin-right: 8px;"></i> {% if language == 'Kannada' %}ಎಫ್‌ಡಿ ಬಡ್ಡಿದರ ಎಷ್ಟು?{% else %}What are your FD interest rates?{% endif %}</span>
+                            <i class="fa-solid fa-volume-high" style="color: #94a3b8; font-size: 0.8rem;"></i>
+                        </div>
+                        <div class="ai-chip" id="chip-2" onclick="askSiriDirect('How do I open an account?')">
+                            <span><i class="fa-solid fa-user-plus" style="color: #10b981; margin-right: 8px;"></i> {% if language == 'Kannada' %}ಹೊಸ ಖಾತೆ ಹೇಗೆ ತೆರೆಯುವುದು?{% else %}How do I open an account?{% endif %}</span>
+                            <i class="fa-solid fa-volume-high" style="color: #94a3b8; font-size: 0.8rem;"></i>
+                        </div>
+                        <div class="ai-chip" id="chip-3" onclick="askSiriDirect('Tell me about RuPay Debit Card offers')">
+                            <span><i class="fa-solid fa-credit-card" style="color: #f59e0b; margin-right: 8px;"></i> {% if language == 'Kannada' %}ಡೆಬಿಟ್ ಕಾರ್ಡ್ ಆಫರ್‌ಗಳು ಯಾವುವು?{% else %}Tell me about RuPay Debit Card offers{% endif %}</span>
+                            <i class="fa-solid fa-volume-high" style="color: #94a3b8; font-size: 0.8rem;"></i>
+                        </div>
+                        <div class="ai-chip" id="chip-4" onclick="askSiriDirect('Tell me about Kisan Agri Loans at 4%')">
+                            <span><i class="fa-solid fa-wheat-awn" style="color: #34d399; margin-right: 8px;"></i> {% if language == 'Kannada' %}ಕೃಷಿ ಸಾಲದ ವಿವರ ಹೇಳಿ{% else %}Tell me about Kisan Agri Loans at 4%{% endif %}</span>
+                            <i class="fa-solid fa-volume-high" style="color: #94a3b8; font-size: 0.8rem;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Big Callout Button to Start Voice Interaction -->
+                    <button class="btn-talk-siri" id="btn-talk-siri" onclick="startVoiceHomeAssistant()">
+                        <i class="fa-solid fa-microphone"></i>
+                        <span>{% if language == 'Kannada' %}ಸಿರಿ AI ಜೊತೆ ಮಾತನಾಡಿ{% else %}Talk to SIRI AI Assistant{% endif %}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: OFFERS & RATES -->
+    <section class="section-wrap" id="offers">
+        <div class="section-header">
+            <div class="section-tag" id="sec-tag-offers">{% if language == 'Kannada' %}ಉನ್ನತ ಲಾಭ & ಕೊಡುಗೆಗಳು{% else %}High Yield & Rewards{% endif %}</div>
+            <h2 class="section-heading" id="sec-title-offers">{% if language == 'Kannada' %}ವಿಶೇಷ ಬ್ಯಾಂಕಿಂಗ್ ಕೊಡುಗೆಗಳು ಮತ್ತು ಬಡ್ಡಿದರಗಳು{% else %}Exclusive Banking Offers & Interest Rates{% endif %}</h2>
+            <p class="section-sub" id="sec-desc-offers">{% if language == 'Kannada' %}ನಿಮ್ಮ ಹಣಕ್ಕೆ ಗರಿಷ್ಠ ಲಾಭ ಮತ್ತು ಅತ್ಯುತ್ತಮ ಸೌಲಭ್ಯಗಳನ್ನು ಒದಗಿಸುವ ಆಕರ್ಷಕ ಬ್ಯಾಂಕಿಂಗ್ ಯೋಜನೆಗಳು.{% else %}Industry-leading fixed returns, lifetime-free cards, and subsidized agriculture credit.{% endif %}</p>
+        </div>
+
+        <div class="offers-grid">
+            <!-- Card 1: Fixed Deposit -->
+            <div class="offer-card featured" id="rates">
+                <span class="offer-badge" id="badge-offer-1" style="background:#fee2e2; color:#ef4444;">{% if language == 'Kannada' %}ಜನಪ್ರಿಯ{% else %}Most Popular{% endif %}</span>
+                <div class="offer-icon" style="background:#eff6ff; color:#2563eb;"><i class="fa-solid fa-chart-line-up"></i></div>
+                <h3 class="offer-title" id="title-offer-1">{% if language == 'Kannada' %}ಟ್ರಿಪಲ್ ಡಿಲೈಟ್ ಫಿಕ್ಸ್ಡ್ ಡೆಪಾಸಿಟ್ (FD){% else %}Triple Delight Fixed Deposit (FD){% endif %}</h3>
+                <div class="offer-rate">7.85% <span>p.a.</span></div>
+                <p class="offer-desc" id="desc-offer-1">
+                    {% if language == 'Kannada' %}
+                    ಹಿರಿಯ ನಾಗರಿಕರಿಗೆ ಹೆಚ್ಚುವರಿ <strong>8.35% p.a.</strong> ಬಡ್ಡಿ. ಯಾವುದೇ ತುರ್ತು ಸಂದರ್ಭದಲ್ಲಿ ಅವಧಿಗೆ ಮುನ್ನ ಹಿಂಪಡೆಯಲು ಶೂನ್ಯ ದಂಡ.
+                    {% else %}
+                    Extra <strong>0.50% (8.35% p.a.)</strong> for Senior Citizens. Guaranteed quarterly compounding and zero premature penalty for emergencies.
+                    {% endif %}
+                </p>
+                <button class="offer-btn" id="btn-offer-1" onclick="openAuthModal('register')">{% if language == 'Kannada' %}ಎಫ್‌ಡಿ ಖಾತೆ ತೆರೆಯಿರಿ{% else %}Open FD Account{% endif %}</button>
+            </div>
+
+            <!-- Card 2: RuPay Platinum Card -->
+            <div class="offer-card">
+                <span class="offer-badge" id="badge-offer-2" style="background:#dcfce7; color:#15803d;">{% if language == 'Kannada' %}ಮೊದಲ ವರ್ಷ ಉಚಿತ{% else %}Zero Fee{% endif %}</span>
+                <div class="offer-icon" style="background:#ecfdf5; color:#10b981;"><i class="fa-solid fa-credit-card"></i></div>
+                <h3 class="offer-title" id="title-offer-2">{% if language == 'Kannada' %}ಸಿರಿ ರೂಪೇ ಪ್ಲಾಟಿನಮ್ ಕಾರ್ಡ್{% else %}SIRI Contactless RuPay Platinum{% endif %}</h3>
+                <div class="offer-rate" id="rate-offer-2">₹0 <span>{% if language == 'Kannada' %}ವಾರ್ಷಿಕ ಶುಲ್ಕ{% else %}Annual Fee (Yr 1){% endif %}</span></div>
+                <p class="offer-desc" id="desc-offer-2">
+                    {% if language == 'Kannada' %}
+                    ಯುಪಿಐ ಪಾವತಿಗಳಲ್ಲಿ 2x ರಿವಾರ್ಡ್ ಪಾಯಿಂಟ್‌ಗಳು. ವಿಮಾನ ನಿಲ್ದಾಣ ಲಾಂಜ್ ಪ್ರವೇಶ ಮತ್ತು 1-ಕ್ಲಿಕ್ ಧ್ವನಿ ಫ್ರೀಜ್ ಭದ್ರತೆ.
+                    {% else %}
+                    2x reward points on UPI payments, free domestic airport lounge access, and instant voice-guided card freezing for safety.
+                    {% endif %}
+                </p>
+                <button class="offer-btn" id="btn-offer-2" onclick="openAuthModal('register')">{% if language == 'Kannada' %}ಕಾರ್ಡ್ ಪಡೆಯಿರಿ{% else %}Get Platinum Card{% endif %}</button>
+            </div>
+
+            <!-- Card 3: Kisan Agri Loan -->
+            <div class="offer-card">
+                <span class="offer-badge" id="badge-offer-3" style="background:#fef3c7; color:#b45309;">{% if language == 'Kannada' %}ಸಬ್ಸಿಡಿ ದರ{% else %}Subsidized{% endif %}</span>
+                <div class="offer-icon" style="background:#fffbeb; color:#f59e0b;"><i class="fa-solid fa-wheat-awn"></i></div>
+                <h3 class="offer-title" id="title-offer-3">{% if language == 'Kannada' %}ಕಿಸಾನ್ ವಾಯ್ಸ್ ಕೃಷಿ ಸಾಲ{% else %}Kisan Voice Agri-Credit{% endif %}</h3>
+                <div class="offer-rate">4.00% <span>p.a.</span></div>
+                <p class="offer-desc" id="desc-offer-3">
+                    {% if language == 'Kannada' %}
+                    ಕರ್ನಾಟಕದ ರೈತರಿಗೆ ವಿಶೇಷ ಸಬ್ಸಿಡಿ ಸಾಲ. ಯಾವುದೇ ಕಾಗದಪತ್ರಗಳಿಲ್ಲದೆ ನೇರ ಡಿಬಿಟಿ ಸಹಾಯಧನ ಲಿಂಕಿಂಗ್.
+                    {% else %}
+                    Highly subsidized interest for Karnataka farmers with zero paperwork, direct DBT subsidy linkage, and flexible harvest repayments.
+                    {% endif %}
+                </p>
+                <button class="offer-btn" id="btn-offer-3" onclick="openAuthModal('register')">{% if language == 'Kannada' %}ಸಾಲಕ್ಕೆ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ{% else %}Apply for Agri Credit{% endif %}</button>
+            </div>
+
+            <!-- Card 4: Smart Home Loan -->
+            <div class="offer-card">
+                <div class="offer-icon" style="background:#f5f3ff; color:#7c3aed;"><i class="fa-solid fa-house-chimney"></i></div>
+                <h3 class="offer-title" id="title-offer-4">{% if language == 'Kannada' %}ಸ್ಮಾರ್ಟ್ ಗೃಹ ಸಾಲ{% else %}Smart Home Loans{% endif %}</h3>
+                <div class="offer-rate">8.40% <span>p.a.</span></div>
+                <p class="offer-desc" id="desc-offer-4">
+                    {% if language == 'Kannada' %}
+                    ಮಹಿಳಾ ಅರ್ಜಿದಾರರಿಗೆ ಶೂನ್ಯ ಪ್ರೊಸೆಸಿಂಗ್ ಶುಲ್ಕ. 24 ಗಂಟೆಗಳಲ್ಲಿ ಡಿಜಿಟಲ್ ಪೂರ್ವ-ಅನುಮೋದನೆ.
+                    {% else %}
+                    Zero processing fee for women co-applicants and instant paperless pre-approval in under 24 hours.
+                    {% endif %}
+                </p>
+                <button class="offer-btn" id="btn-offer-4" onclick="openAuthModal('register')">{% if language == 'Kannada' %}ವಿವರ ನೋಡಿ{% else %}Check Eligibility{% endif %}</button>
+            </div>
+        </div>
+
+        <!-- Interactive FD Returns Calculator -->
+        <div class="calc-wrapper" id="calculator">
+            <div>
+                <div id="calc-tag" style="font-size: 0.85rem; text-transform: uppercase; color: #38bdf8; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px;">
+                    {% if language == 'Kannada' %}ಉಚಿತ ಉಳಿತಾಯ ಕ್ಯಾಲ್ಕುಲೇಟರ್{% else %}Interactive Savings Tool{% endif %}
+                </div>
+                <h3 id="calc-heading" style="font-size: 1.8rem; font-weight: 800; margin: 0 0 1.5rem 0;">
+                    {% if language == 'Kannada' %}ನಿಮ್ಮ ಎಫ್‌ಡಿ ಆದಾಯವನ್ನು ತಕ್ಷಣ ಲೆಕ್ಕಹಾಕಿ{% else %}Calculate Your Fixed Deposit Growth{% endif %}
+                </h3>
+
+                <!-- Slider 1: Deposit Amount -->
+                <div class="calc-slider-group">
+                    <label>
+                        <span id="lbl-calc-amount">{% if language == 'Kannada' %}ಹೂಡಿಕೆ ಮೊತ್ತ (Deposit Amount):{% else %}Deposit Amount:{% endif %}</span>
+                        <span id="calc-amount-label" style="color: #38bdf8; font-weight: 800;">₹ 1,00,000</span>
+                    </label>
+                    <input type="range" id="slider-amount" class="calc-slider" min="10000" max="1000000" step="5000" value="100000" oninput="calculateReturns()">
+                </div>
+
+                <!-- Slider 2: Duration -->
+                <div class="calc-slider-group">
+                    <label>
+                        <span id="lbl-calc-tenure">{% if language == 'Kannada' %}ಅವಧಿ (Tenure in Years):{% else %}Tenure (Years):{% endif %}</span>
+                        <span id="calc-tenure-label" style="color: #38bdf8; font-weight: 800;">3 Years</span>
+                    </label>
+                    <input type="range" id="slider-tenure" class="calc-slider" min="1" max="5" step="1" value="3" oninput="calculateReturns()">
+                </div>
+
+                <div id="calc-disclaimer" style="font-size: 0.82rem; color: #94a3b8;">
+                    {% if language == 'Kannada' %}* ವಾರ್ಷಿಕ 7.85% ಚಕ್ರಬಡ್ಡಿ ಆಧಾರದ ಮೇಲೆ. ಹಿರಿಯ ನಾಗರಿಕರಿಗೆ ಹೆಚ್ಚುವರಿ 0.50% ದೊರೆಯುತ್ತದೆ.{% else %}* Based on annual compounding at 7.85% p.a. Senior citizens earn extra 0.50%.{% endif %}
+                </div>
+            </div>
+
+            <!-- Result Box -->
+            <div class="calc-result-card">
+                <div id="lbl-calc-maturity" style="font-size: 0.85rem; color: #cbd5e1; font-weight: 600;">
+                    {% if language == 'Kannada' %}ಅಂದಾಜು ಮುಕ್ತಾಯ ಮೌಲ್ಯ (Maturity Value):{% else %}Estimated Maturity Value:{% endif %}
+                </div>
+                <div class="calc-returns" id="calc-maturity-val">₹ 1,25,456</div>
+                <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 1.5rem;">
+                    <span id="lbl-calc-interest">{% if language == 'Kannada' %}ಗಳಿಸಿದ ಬಡ್ಡಿ:{% else %}Total Interest Earned:{% endif %}</span> <strong style="color: #10b981;" id="calc-interest-val">₹ 25,456</strong>
+                </div>
+                <button class="btn-talk-siri" id="btn-calc-cta" onclick="openAuthModal('register')">
+                    {% if language == 'Kannada' %}ಈ ಬಡ್ಡಿದರದಲ್ಲಿ ಖಾತೆ ತೆರೆಯಿರಿ{% else %}Lock in 7.85% Rate - Open Account{% endif %}
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: FEATURES / WHY CHOOSE US -->
+    <section class="section-wrap" id="features" style="background: #ffffff; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+        <div class="section-header">
+            <div class="section-tag" id="feat-tag">{% if language == 'Kannada' %}ನಾವೀನ್ಯತೆ & ತಂತ್ರಜ್ಞಾನ{% else %}Why SIRI BANK{% endif %}</div>
+            <h2 class="section-heading" id="feat-heading">{% if language == 'Kannada' %}ಬ್ಯಾಂಕಿಂಗ್ ಇಷ್ಟೊಂದು ಸರಳ ಮತ್ತು ಸುರಕ್ಷಿತ{% else %}Banking Re-imagined For Everyone{% endif %}</h2>
+            <p class="section-sub" id="feat-sub">{% if language == 'Kannada' %}ಪ್ರತಿಯೊಬ್ಬ ಭಾರತೀಯ ನಾಗರಿಕರಿಗಾಗಿ ವಿನ್ಯಾಸಗೊಳಿಸಲಾದ ಧ್ವನಿ-ಪ್ರಥಮ ಡಿಜಿಟಲ್ ಬ್ಯಾಂಕ್.{% else %}Eliminating digital and literacy barriers through voice intelligence and modern cryptography.{% endif %}</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-microphone-lines"></i></div>
+                <h4 id="feat-1-title" style="font-size: 1.15rem; font-weight: 800; margin-bottom: 8px;">{% if language == 'Kannada' %}ಶೂನ್ಯ-ಕ್ಲಿಕ್ ಧ್ವನಿ ಬ್ಯಾಂಕಿಂಗ್{% else %}Zero-Click Voice First{% endif %}</h4>
+                <p id="feat-1-desc" style="color: #64748b; font-size: 0.9rem; line-height: 1.5;">
+                    {% if language == 'Kannada' %}ಯಾವುದೇ ಮೆನು ಹುಡುಕುವ ಅಗತ್ಯವಿಲ್ಲ. ಕೇವಲ ಮಾತನಾಡಿ ಹಣ ಕಳುಹಿಸಿ, ಬ್ಯಾಲೆನ್ಸ್ ನೋಡಿ.{% else %}No confusing drop-downs. Perform transfers, inquiries, and card management via speech.{% endif %}
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-camera-web"></i></div>
+                <h4 id="feat-2-title" style="font-size: 1.15rem; font-weight: 800; margin-bottom: 8px;">{% if language == 'Kannada' %}ಲೈವ್ ವೆಬ್‌ಕ್ಯಾಮ್ e-KYC{% else %}Webcam Live e-KYC{% endif %}</h4>
+                <p id="feat-2-desc" style="color: #64748b; font-size: 0.9rem; line-height: 1.5;">
+                    {% if language == 'Kannada' %}ಬ್ಯಾಂಕ್ ಶಾಖೆಗೆ ಹೋಗದೆ ಮನೆಯಿಂದಲೇ ನೈಜ-ಸಮಯದ ಮುಖ ಲೈವ್‌ನೆಸ್ ಮೂಲಕ ಖಾತೆ ದೃಢೀಕರಣ.{% else %}Paperless verification with anti-spoofing webcam selfie and digital Aadhaar submission.{% endif %}
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-snowflake"></i></div>
+                <h4 id="feat-3-title" style="font-size: 1.15rem; font-weight: 800; margin-bottom: 8px;">{% if language == 'Kannada' %}1-ಕ್ಲಿಕ್ ಕಾರ್ಡ್ ಫ್ರೀಜ್{% else %}Instant Card Freeze{% endif %}</h4>
+                <p id="feat-3-desc" style="color: #64748b; font-size: 0.9rem; line-height: 1.5;">
+                    {% if language == 'Kannada' %}ಕಾರ್ಡ್ ಕಳೆದುಹೋದರೆ ತಕ್ಷಣ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಅಥವಾ ಧ್ವನಿ ಮೂಲಕ ಫ್ರೀಜ್ ಮಾಡಿ ವಂಚನೆ ತಡೆಯಿರಿ.{% else %}Misplaced your card? Freeze and unfreeze instantly from dashboard or voice without hotline queues.{% endif %}
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-language"></i></div>
+                <h4 id="feat-4-title" style="font-size: 1.15rem; font-weight: 800; margin-bottom: 8px;">{% if language == 'Kannada' %}ಸಂಪೂರ್ಣ ಕನ್ನಡ ಮತ್ತು ಇಂಗ್ಲಿಷ್{% else %}Bilingual Equality{% endif %}</h4>
+                <p id="feat-4-desc" style="color: #64748b; font-size: 0.9rem; line-height: 1.5;">
+                    {% if language == 'Kannada' %}ಕೃತಕ ಅನುವಾದವಲ್ಲದೆ, ಸಹಜ ಆಡುಭಾಷೆಯ ಕನ್ನಡದಲ್ಲೇ ಪೂರ್ಣ ಸಂಭಾಷಣೆ ನಡೆಸುವ AI.{% else %}Deep conversational understanding in Kannada (kn-IN) and English across all flows.{% endif %}
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- AUTH MODAL: LOGIN & REGISTER -->
+    <div id="authModal" class="auth-modal-backdrop" onclick="if(event.target===this) closeAuthModal()">
+        <div class="auth-modal-window">
+            <button class="modal-close-btn" onclick="closeAuthModal()" title="Close"><i class="fa-solid fa-xmark"></i></button>
+
+            <!-- Modal Header Branding -->
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                    <div style="width: 34px; height: 34px; background: #4f46e5; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;"><i class="fa-solid fa-building-columns"></i></div>
+                    <span style="font-size: 1.4rem; font-weight: 900; color: #0f172a;">SIRI BANK</span>
+                </div>
+                <p id="modal-subtitle" style="margin: 0; font-size: 0.88rem; color: #64748b;">
+                    {% if language == 'Kannada' %}ಸುರಕ್ಷಿತ AI ಬ್ಯಾಂಕಿಂಗ್ ಪೋರ್ಟಲ್{% else %}Secure AI Banking Access{% endif %}
+                </p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="auth-tabs" style="display: flex; background: #f1f5f9; border-radius: 12px; padding: 4px; margin-bottom: 1.5rem; gap: 4px;">
+                <button type="button" class="auth-tab active" id="tab-btn-login" onclick="switchAuthMode('login')" style="flex: 1; padding: 10px; border: none; background: white; border-radius: 8px; font-weight: 700; font-size: 0.9rem; color: #2563eb; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <i class="fa-solid fa-right-to-bracket" style="margin-right: 6px;"></i> {% if language == 'Kannada' %}ಲಾಗಿನ್{% else %}Login to Account{% endif %}
+                </button>
+                <button type="button" class="auth-tab" id="tab-btn-register" onclick="switchAuthMode('register')" style="flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; font-weight: 700; font-size: 0.9rem; color: #64748b; cursor: pointer;">
+                    <i class="fa-solid fa-user-plus" style="margin-right: 6px;"></i> {% if language == 'Kannada' %}ಹೊಸ ಖಾತೆ (ನೋಂದಣಿ){% else %}Open Account{% endif %}
+                </button>
+            </div>
+
+            <!-- FORM 1: LOGIN -->
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="identifier" id="label-identifier">{% if language == 'Kannada' %}ಆಧಾರ್ / ಗ್ರಾಹಕ ಐಡಿ / ಮೊಬೈಲ್ ಸಂಖ್ಯೆ{% else %}Aadhaar / Customer ID / Phone{% endif %}</label>
+                    <input type="text" id="identifier" name="identifier" required placeholder="{% if language == 'Kannada' %}ಆಧಾರ್, ಮೊಬೈಲ್ ಅಥವಾ ಗ್ರಾಹಕ ಐಡಿ (ಉದಾ: CUST1001){% else %}Enter Aadhaar, Phone or ID (e.g. CUST1001){% endif %}">
+                </div>
+                <div class="input-group">
+                    <label for="password" id="label-password">{% if language == 'Kannada' %}ಪಾಸ್‌ವರ್ಡ್{% else %}Password{% endif %}</label>
+                    <input type="password" id="password" name="password" required placeholder="{% if language == 'Kannada' %}ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ{% else %}Enter your password{% endif %}">
+                </div>
+                <button type="submit" class="btn-primary" id="login-btn" style="width: 100%; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 1rem; margin-top: 0.5rem;">
+                    <i class="fa-solid fa-arrow-right-to-bracket" style="margin-right: 8px;"></i> {% if language == 'Kannada' %}ಖಾತೆಗೆ ಲಾಗಿನ್ ಮಾಡಿ{% else %}Sign In to Account{% endif %}
+                </button>
+
+
+                <div style="margin-top: 1.25rem; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 1rem;">
+                    <a href="javascript:void(0)" onclick="openStatusCheckerModal()" id="link-check-status" style="font-size: 0.85rem; color: #4f46e5; text-decoration: none; font-weight: 700;">
+                        <i class="fa-solid fa-magnifying-glass"></i> {% if language == 'Kannada' %}ಅರ್ಜಿ / ನೋಂದಣಿ ಸ್ಥಿತಿ ಪರಿಶೀಲಿಸಿ{% else %}Check Application / Registration Status{% endif %}
+                    </a>
+                </div>
+            </form>
+
+            <!-- FORM 2: SELF-REGISTRATION (Subject to Admin Approval) -->
+            <form id="register-form" style="display: none;">
+                <!-- Voice Assisted Action Card for Non-Readers -->
+                <div class="voice-register-card" onclick="startVoiceRegistrationPrompt()" title="Click or speak to register hands-free">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                            <i class="fa-solid fa-microphone"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <h5 id="voice-reg-title" style="margin: 0; font-size: 0.95rem; font-weight: 800;">{% if language == 'Kannada' %}ಧ್ವನಿ ನೋಂದಣಿ ಮತ್ತು ಸಹಾಯ{% else %}Voice Registration Assist{% endif %}</h5>
+                            <p id="voice-reg-desc" style="margin: 2px 0 0; font-size: 0.78rem; opacity: 0.9;">
+                                {% if language == 'Kannada' %}ಓದಲು ಕಷ್ಟವೇ? ಕ್ಲಿಕ್ ಮಾಡಿ, AI ನಿಮಗಾಗಿ ಭರ್ತಿ ಮಾಡುತ್ತದೆ!{% else %}Difficulty typing? Click & speak, AI will register for you!{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="reg_name" id="label-reg-name">{% if language == 'Kannada' %}ಪೂರ್ಣ ಹೆಸರು{% else %}Full Name{% endif %} <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="reg_name" name="reg_name" required placeholder="{% if language == 'Kannada' %}ಉದಾ: ರಮೇಶ್ ಕುಮಾರ್{% else %}e.g. Ramesh Kumar{% endif %}">
+                </div>
+
+                <div class="input-group">
+                    <label for="reg_email" id="label-reg-email">
+                        <i class="fa-solid fa-envelope" style="color: #6366f1; margin-right: 4px;"></i>
+                        {% if language == 'Kannada' %}ಇಮೇಲ್ ವಿಳಾಸ (ಅಧಿಸೂಚನೆಗಳಿಗಾಗಿ){% else %}Email Address (For Real Notifications){% endif %} <span style="color:#ef4444;">*</span>
+                    </label>
+                    <input type="email" id="reg_email" name="reg_email" required placeholder="{% if language == 'Kannada' %}ಉದಾ: user@gmail.com{% else %}e.g. user@gmail.com{% endif %}">
+                </div>
+
+                <div class="input-group">
+                    <label for="reg_phone" id="label-reg-phone">{% if language == 'Kannada' %}ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (10 ಅಂಕಿಗಳು){% else %}Mobile Number (10 digits){% endif %} <span style="color:#ef4444;">*</span></label>
+                    <input type="tel" id="reg_phone" name="reg_phone" maxlength="10" required placeholder="{% if language == 'Kannada' %}10 ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ{% else %}10-digit mobile number{% endif %}">
+                </div>
+
+                <div class="input-group">
+                    <label for="reg_aadhaar" id="label-reg-aadhaar">{% if language == 'Kannada' %}ಆಧಾರ್ ಸಂಖ್ಯೆ (12 ಅಂಕಿಗಳು){% else %}Aadhaar Number (12 digits){% endif %} <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="reg_aadhaar" name="reg_aadhaar" maxlength="12" required placeholder="{% if language == 'Kannada' %}12 ಅಂಕಿಯ ಆಧಾರ್ ಸಂಖ್ಯೆ{% else %}12-digit Aadhaar number{% endif %}">
+                </div>
+
+                <!-- 1. Photo of Person (Profile Picture) -->
+                <div class="input-group">
+                    <label id="label-reg-photo" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fa-solid fa-camera" style="color: #0ea5e9; margin-right: 4px;"></i> {% if language == 'Kannada' %}ವ್ಯಕ್ತಿಯ ಫೋಟೋ (ಪ್ರೊಫೈಲ್ ಚಿತ್ರ){% else %}Photo of Person (Profile Image){% endif %} <span style="color:#ef4444;">*</span></span>
+                        <span style="font-size: 0.72rem; color: #64748b;">AI Camera Enabled</span>
+                    </label>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <button type="button" class="btn-live-cam" onclick="openLiveCamera('photo')" style="flex: 1; padding: 10px 14px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 0.84rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 3px 10px rgba(2,132,199,0.25);">
+                            <i class="fa-solid fa-camera"></i> {% if language == 'Kannada' %}ಕ್ಯಾಮೆರಾ ತೆರೆದು ಫೋಟೋ ತೆಗೆಯಿರಿ{% else %}Open Camera &amp; Click Photo{% endif %}
+                        </button>
+                    </div>
+                    <div class="upload-dropzone" id="photo-dropzone" onclick="document.getElementById('reg_photo').click()">
+                        <input type="file" id="reg_photo" accept="image/*" style="display: none;" onchange="handleImagePreview(this, 'photo_preview', 'photo_preview_wrap', 'photo_dropzone_prompt', 'photo-dropzone', 'photo_name')">
+                        <div id="photo_dropzone_prompt">
+                            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.4rem; color: #0284c7; margin-bottom: 4px;"></i>
+                            <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">{% if language == 'Kannada' %}ಅಥವಾ ಫೈಲ್‌ನಿಂದ ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ{% else %}Or Upload Photo from File{% endif %}</div>
+                            <div style="font-size: 0.72rem; color: #64748b;">{% if language == 'Kannada' %}ಅನುಮೋದನೆಯ ನಂತರ ಇದು ಪ್ರೊಫೈಲ್ ಚಿತ್ರವಾಗುತ್ತದೆ{% else %}Will be used as approved Profile Picture{% endif %}</div>
+                        </div>
+                        <div id="photo_preview_wrap" style="display: none; align-items: center; gap: 12px; width: 100%;">
+                            <img id="photo_preview" src="" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #0284c7; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            <div style="flex: 1; text-align: left;">
+                                <div id="photo_name" style="font-size: 0.8rem; font-weight: 700; color: #0f172a; word-break: break-all;">Photo selected</div>
+                                <div style="font-size: 0.7rem; color: #10b981; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Photo Ready</div>
+                            </div>
+                            <button type="button" onclick="event.stopPropagation(); removeUploadedFile('reg_photo', 'photo_preview_wrap', 'photo_dropzone_prompt', 'photo-dropzone')" style="background: #fee2e2; color: #dc2626; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Upload Any ID Proof -->
+                <div class="input-group">
+                    <label id="label-reg-idproof" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fa-solid fa-id-card-clip" style="color: #8b5cf6; margin-right: 4px;"></i> {% if language == 'Kannada' %}ಯಾವುದೇ ಗುರುತಿನ ಚೀಟಿ (ಆಧಾರ್ / ಪ್ಯಾನ್ / ವೋಟರ್ ಐಡಿ / ಪಾಸ್‌ಪೋರ್ಟ್){% else %}Upload Any ID Proof (Aadhaar, PAN, Voter ID, Passport){% endif %} <span style="color:#ef4444;">*</span></span>
+                        <span style="font-size: 0.72rem; color: #64748b;">Camera or File</span>
+                    </label>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <button type="button" class="btn-live-cam" onclick="openLiveCamera('idproof')" style="flex: 1; padding: 10px 14px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 0.84rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 3px 10px rgba(124,58,237,0.25);">
+                            <i class="fa-solid fa-id-card"></i> {% if language == 'Kannada' %}ಕ್ಯಾಮೆರಾದಿಂದ ಐಡಿ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ{% else %}Scan ID Card with Camera{% endif %}
+                        </button>
+                    </div>
+                    <div class="upload-dropzone" id="idproof-dropzone" onclick="document.getElementById('reg_id_proof').click()">
+                        <input type="file" id="reg_id_proof" accept="image/*" style="display: none;" onchange="handleImagePreview(this, 'id_preview', 'id_preview_wrap', 'idproof_dropzone_prompt', 'idproof-dropzone', 'id_name')">
+                        <div id="idproof_dropzone_prompt">
+                            <i class="fa-solid fa-file-shield" style="font-size: 1.4rem; color: #8b5cf6; margin-bottom: 4px;"></i>
+                            <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">{% if language == 'Kannada' %}ಅಥವಾ ಫೈಲ್‌ನಿಂದ ಗುರುತಿನ ಚೀಟಿ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ{% else %}Or Upload ID Document from File{% endif %}</div>
+                            <div style="font-size: 0.72rem; color: #64748b;">{% if language == 'Kannada' %}ಆಡಳಿತಾಧಿಕಾರಿಗಳು ಪರಿಶೀಲಿಸಿ ಅನುಮೋದಿಸುತ್ತಾರೆ{% else %}Aadhaar / PAN / Voter ID / Passport for Admin verification{% endif %}</div>
+                        </div>
+                        <div id="id_preview_wrap" style="display: none; align-items: center; gap: 12px; width: 100%;">
+                            <img id="id_preview" src="" style="width: 58px; height: 40px; border-radius: 6px; object-fit: cover; border: 1.5px solid #8b5cf6; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            <div style="flex: 1; text-align: left;">
+                                <div id="id_name" style="font-size: 0.8rem; font-weight: 700; color: #0f172a; word-break: break-all;">ID Document selected</div>
+                                <div style="font-size: 0.7rem; color: #10b981; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> ID Proof Ready</div>
+                            </div>
+                            <button type="button" onclick="event.stopPropagation(); removeUploadedFile('reg_id_proof', 'id_preview_wrap', 'idproof_dropzone_prompt', 'idproof-dropzone')" style="background: #fee2e2; color: #dc2626; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="reg_password" id="label-reg-password">{% if language == 'Kannada' %}ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ{% else %}Create Password / PIN{% endif %} <span style="color:#ef4444;">*</span></label>
+                    <input type="password" id="reg_password" name="reg_password" required placeholder="{% if language == 'Kannada' %}ಕನಿಷ್ಠ 4 ಅಕ್ಷರಗಳು{% else %}Minimum 4 characters{% endif %}">
+                </div>
+
+                <div class="input-group">
+                    <label for="reg_lang" id="label-reg-lang">{% if language == 'Kannada' %}ಆದ್ಯತೆಯ ಭಾಷೆ{% else %}Preferred Language{% endif %}</label>
+                    <select id="reg_lang" name="reg_lang" onchange="changeLanguage(this.value)" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600;">
+                        <option value="English" {% if language != 'Kannada' %}selected{% endif %}>English</option>
+                        <option value="Kannada" {% if language == 'Kannada' %}selected{% endif %}>ಕನ್ನಡ (Kannada)</option>
+                    </select>
+                </div>
+
+                <input type="hidden" id="reg_has_photo" name="reg_has_photo" value="">
+                <input type="hidden" id="reg_has_id_proof" name="reg_has_id_proof" value="">
+
+                <button type="submit" class="btn-primary" id="register-btn" style="width: 100%; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 1rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <i class="fa-solid fa-user-check" style="margin-right: 8px;"></i> {% if language == 'Kannada' %}ಅನುಮೋದನೆಗಾಗಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ{% else %}Submit Application for Approval{% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Status Checker Modal -->
+    <div id="statusModal" class="status-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 100000; align-items: center; justify-content: center; padding: 1rem;">
+        <div class="status-modal-content" style="background: white; border-radius: 20px; max-width: 440px; width: 100%; padding: 2rem; text-align: center;">
+            <h3 id="status-modal-title" style="margin-top: 0; color: #0f172a;"><i class="fa-solid fa-clipboard-check" style="color: #4f46e5;"></i> {% if language == 'Kannada' %}ಅರ್ಜಿ ಸ್ಥಿತಿ ಪರಿಶೀಲನೆ{% else %}Application Status Check{% endif %}</h3>
+            <p id="status-modal-desc" style="font-size: 0.88rem; color: #64748b;">{% if language == 'Kannada' %}ನಿಮ್ಮ ನೋಂದಣಿ ಅನುಮೋದನೆ ಸ್ಥಿತಿ ತಿಳಿಯಲು ಮೊಬೈಲ್ ಅಥವಾ ಆಧಾರ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ.{% else %}Enter your Registered Mobile Number or Aadhaar to check approval status.{% endif %}</p>
+            <div class="input-group" style="text-align: left;">
+                <input type="text" id="status-checker-input" placeholder="{% if language == 'Kannada' %}ಮೊಬೈಲ್ ಅಥವಾ ಆಧಾರ್ ಸಂಖ್ಯೆ{% else %}Enter Phone or Aadhaar{% endif %}">
+            </div>
+            <div id="status-checker-result" style="margin: 1rem 0; font-size: 0.9rem; text-align: left;"></div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem;">
+                <button type="button" class="btn-primary" id="btn-status-check" onclick="checkApplicationStatus()" style="flex: 1; padding: 10px;">{% if language == 'Kannada' %}ಪರಿಶೀಲಿಸಿ{% else %}Check Status{% endif %}</button>
+                <button type="button" id="btn-status-close" onclick="closeStatusModal()" style="padding: 10px 18px; border: 1px solid #cbd5e1; background: white; border-radius: 8px; cursor: pointer; font-weight: 600;">{% if language == 'Kannada' %}ಮುಚ್ಚಿ{% else %}Close{% endif %}</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account State Modal (Pending / Rejected Reason) -->
+    <div id="accountStateModal" class="status-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 100000; align-items: center; justify-content: center; padding: 1rem;">
+        <div class="status-modal-content" id="accountStateContent" style="background: white; border-radius: 20px; max-width: 440px; width: 100%; padding: 2rem; text-align: center;">
+            <!-- Populated via JS -->
+        </div>
+    </div>
+
+    <!-- AI Live Camera Capture Modal -->
+    <div id="cameraModal" class="status-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(10px); z-index: 200000; align-items: center; justify-content: center; padding: 1rem;">
+        <div class="camera-modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; max-width: 500px; width: 100%; padding: 1.5rem; text-align: center; color: white; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative;">
+            <button type="button" onclick="closeLiveCamera()" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.15); border: none; color: white; width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div style="margin-bottom: 0.8rem;">
+                <h3 id="cameraModalTitle" style="margin: 0; font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fa-solid fa-camera-retro" style="color: #38bdf8;"></i> <span id="cameraTitleText">Live Photo Capture</span>
+                </h3>
+                <p id="cameraModalSubtitle" style="margin: 4px 0 0; font-size: 0.82rem; color: #94a3b8;">
+                    Look at the camera and say "Click" or press the button below
+                </p>
+            </div>
+
+            <!-- Video & Canvas Container -->
+            <div style="position: relative; width: 100%; border-radius: 18px; overflow: hidden; background: #000; aspect-ratio: 4/3; max-height: 340px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); margin: 0 auto 0.8rem;">
+                <!-- Live Video Feed -->
+                <video id="liveCameraVideo" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: block;"></video>
+                
+                <!-- Snapshot Preview Image (Hidden while streaming) -->
+                <img id="liveCameraPreviewImg" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+
+                <!-- Hidden Canvas -->
+                <canvas id="liveCameraCanvas" style="display: none;"></canvas>
+
+                <!-- Oval Face Guide for Profile Photo -->
+                <div id="camFaceGuide" style="position: absolute; inset: 10% 22%; border: 2.5px dashed rgba(56, 189, 248, 0.85); border-radius: 50%; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,0.22); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px;">
+                    <span style="font-size: 0.7rem; font-weight: 700; color: #38bdf8; background: rgba(0,0,0,0.65); padding: 2px 8px; border-radius: 10px;">Face Center</span>
+                </div>
+
+                <!-- Rectangular Guide for ID Document -->
+                <div id="camIdGuide" style="display: none; position: absolute; inset: 12% 8%; border: 2.5px dashed rgba(168, 85, 247, 0.85); border-radius: 12px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,0.22); align-items: flex-end; justify-content: center; padding-bottom: 6px;">
+                    <span style="font-size: 0.7rem; font-weight: 700; color: #c084fc; background: rgba(0,0,0,0.65); padding: 2px 8px; border-radius: 10px;">Align ID Card</span>
+                </div>
+
+                <!-- Countdown Overlay -->
+                <div id="camCountdownOverlay" style="display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.4); align-items: center; justify-content: center; font-size: 4.5rem; font-weight: 900; color: white; text-shadow: 0 0 20px rgba(56,189,248,0.8);">
+                    3
+                </div>
+
+                <!-- Flash Effect Element -->
+                <div id="camFlashEffect" style="position: absolute; inset: 0; background: white; opacity: 0; pointer-events: none; transition: opacity 0.15s ease-out;"></div>
+            </div>
+
+            <!-- Voice Detection Indicator -->
+            <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 50px; padding: 5px 14px; font-size: 0.75rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1rem;">
+                <span style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 1.5s infinite;"></span>
+                <span id="camVoiceInstruction">AI Voice Listening: Say <strong>"Click"</strong> or <strong>"ಕ್ಲಿಕ್ ಮಾಡಿ"</strong></span>
+            </div>
+
+            <!-- Live Streaming Controls -->
+            <div id="camLiveControls" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                <button type="button" onclick="captureLivePhoto()" style="flex: 1; min-width: 140px; padding: 12px 18px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 0.92rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(2,132,199,0.4);">
+                    <i class="fa-solid fa-camera"></i> <span id="btnSnapText">Click Photo / ಕ್ಲಿಕ್ ಮಾಡಿ</span>
+                </button>
+                <button type="button" onclick="startTimerCapture(3)" style="padding: 12px 16px; background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-stopwatch"></i> 3s Timer
+                </button>
+            </div>
+
+            <!-- Captured Preview Controls -->
+            <div id="camPreviewControls" style="display: none; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                <button type="button" onclick="retakeLivePhoto()" style="flex: 1; padding: 12px 16px; background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> Retake / ಮತ್ತೆ ತೆಗೆಯಿರಿ
+                </button>
+                <button type="button" onclick="confirmLivePhoto()" style="flex: 1; padding: 12px 18px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 0.92rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(16,185,129,0.4);">
+                    <i class="fa-solid fa-circle-check"></i> <span id="btnUseText">Use Photo / ಇದನ್ನು ಬಳಸಿ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Footer -->
+    <footer class="portal-footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                    <div style="width: 36px; height: 36px; background: #4f46e5; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;"><i class="fa-solid fa-building-columns"></i></div>
+                    <span style="font-size: 1.4rem; font-weight: 900; color: #ffffff;">SIRI BANK</span>
+                </div>
+                <p style="font-size: 0.88rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                    Karnataka's premier Autonomous Voice-First AI Banking Ecosystem. Delivering seamless linguistic inclusion, automated e-KYC, and enterprise security.
+                </p>
+                <div style="display: flex; gap: 12px; font-size: 1.2rem;">
+                    <a href="#" style="color: #94a3b8;"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="#" style="color: #94a3b8;"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="#" style="color: #94a3b8;"><i class="fa-brands fa-github"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>Banking Services</h4>
+                <ul>
+                    <li><a href="javascript:void(0)" onclick="openAuthModal('register')" style="color: inherit; text-decoration: none;">Open Savings Account</a></li>
+                    <li><a href="#rates" style="color: inherit; text-decoration: none;">Fixed Deposits (7.85%)</a></li>
+                    <li><a href="#offers" style="color: inherit; text-decoration: none;">RuPay Platinum Debit Card</a></li>
+                    <li><a href="#offers" style="color: inherit; text-decoration: none;">Kisan Agri-Credit (4.0%)</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Karnataka Branches</h4>
+                <ul>
+                    <li>Bengaluru: MG Road & Indiranagar</li>
+                    <li>Mysuru: Vijayanagar Main Branch</li>
+                    <li>Hubballi: Station Road Branch</li>
+                    <li>Belagavi & Mangaluru Hubs</li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Customer Support</h4>
+                <ul>
+                    <li>Toll-Free: 1800-SIRI-BANK</li>
+                    <li>Helpline: support@siribank.in</li>
+                    <li>Timing: 24 Hours / 7 Days</li>
+                    <li><a href="/admin" style="color: #38bdf8; text-decoration: none; font-weight: 700;"><i class="fa-solid fa-lock"></i> Bank Admin Portal</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div>© 2026 SIRI BANK AI Technologies. All Rights Reserved. Regulated Under Digital Banking Standards.</div>
+            <div>Department of Computer Science & Engineering • Major Project Capstone</div>
+        </div>
+    </footer>
+
+    <script>
+        // Modal & Auth Controls
+        function openAuthModal(mode) {
+            const modal = document.getElementById('authModal');
+            if (modal) modal.style.display = 'flex';
+            switchAuthMode(mode || 'login');
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('authModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function switchAuthMode(mode) {
+            const modal = document.getElementById('authModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+            const loginForm = document.getElementById('login-form');
+            const regForm = document.getElementById('register-form');
+            const tabLogin = document.getElementById('tab-btn-login');
+            const tabReg = document.getElementById('tab-btn-register');
+
+            if (!loginForm || !regForm) return;
+
+            if (mode === 'register') {
+                loginForm.style.display = 'none';
+                regForm.style.display = 'block';
+                if (tabLogin) {
+                    tabLogin.style.background = 'transparent';
+                    tabLogin.style.color = '#64748b';
+                    tabLogin.style.boxShadow = 'none';
+                }
+                if (tabReg) {
+                    tabReg.style.background = 'white';
+                    tabReg.style.color = '#10b981';
+                    tabReg.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                }
+                const firstInput = document.getElementById('reg_name');
+                if (firstInput) setTimeout(() => firstInput.focus(), 100);
+            } else {
+                loginForm.style.display = 'block';
+                regForm.style.display = 'none';
+                if (tabLogin) {
+                    tabLogin.style.background = 'white';
+                    tabLogin.style.color = '#2563eb';
+                    tabLogin.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                }
+                if (tabReg) {
+                    tabReg.style.background = 'transparent';
+                    tabReg.style.color = '#64748b';
+                    tabReg.style.boxShadow = 'none';
+                }
+                const firstInput = document.getElementById('identifier');
+                if (firstInput) setTimeout(() => firstInput.focus(), 100);
+            }
+        }
+
+        window.openAuthModal = openAuthModal;
+        window.closeAuthModal = closeAuthModal;
+        window.switchAuthMode = switchAuthMode;
+
+        // Dynamic Client-Side Language Switcher: 0ms lag, no page reload needed!
+        function changeLanguage(lang, skipSync) {
+            if (!lang || (lang !== 'Kannada' && lang !== 'English')) lang = 'Kannada';
+            const isKn = (lang === 'Kannada');
+
+            // 1. Sync button active states
+            const btnKn = document.getElementById('btn-lang-kn');
+            const btnEn = document.getElementById('btn-lang-en');
+            if (btnKn && btnEn) {
+                if (isKn) {
+                    btnKn.classList.add('active');
+                    btnEn.classList.remove('active');
+                    btnKn.style.background = '#4f46e5';
+                    btnKn.style.color = '#ffffff';
+                    btnEn.style.background = 'transparent';
+                    btnEn.style.color = '#64748b';
+                } else {
+                    btnEn.classList.add('active');
+                    btnKn.classList.remove('active');
+                    btnEn.style.background = '#4f46e5';
+                    btnEn.style.color = '#ffffff';
+                    btnKn.style.background = 'transparent';
+                    btnKn.style.color = '#64748b';
+                }
+            }
+
+            // 2. Save preference & sync with voice assistant / backend session
+            localStorage.setItem('siri_bank_lang', lang);
+            window.currentVoiceLanguage = lang;
+            if (!skipSync && typeof syncVoiceLanguage === 'function') {
+                syncVoiceLanguage(lang, true);
+            }
+            try {
+                fetch('/api/user/set_language', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ language: lang })
+                }).catch(() => {});
+            } catch(e) {}
+
+            const regLangSelect = document.getElementById('reg_lang');
+            if (regLangSelect && regLangSelect.value !== lang) regLangSelect.value = lang;
+
+            // 3. Mutate DOM Text
+            const setHtml = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+            const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.innerText = txt; };
+            const setPlaceholder = (id, ph) => { const el = document.getElementById(id); if (el) el.placeholder = ph; };
+
+            // Nav Actions
+            setHtml('btn-nav-login', `<i class="fa-solid fa-arrow-right-to-bracket" style="color: #2563eb;"></i> <span>${isKn ? 'ಖಾತೆಗೆ ಲಾಗಿನ್' : 'Login to Account'}</span>`);
+            setHtml('btn-nav-register', `<i class="fa-solid fa-user-plus"></i> <span>${isKn ? 'ಹೊಸ ಖಾತೆ ತೆರೆಯಿರಿ' : 'Open Account'}</span>`);
+
+            // Hero
+            setHtml('hero-badge', `<i class="fa-solid fa-sparkles" style="color: #2563eb;"></i> <span>${isKn ? 'ಧ್ವನಿ ಆಧಾರಿತ ಮುಂದಿನ ಪೀಳಿಗೆಯ ಬ್ಯಾಂಕಿಂಗ್' : 'Next-Gen Conversational AI Banking'}</span>`);
+            setHtml('hero-title', isKn ? 'ನಿಮ್ಮದೇ <span class="gradient-text">ಧ್ವನಿಯಲ್ಲಿ ಸ್ಮಾರ್ಟ್</span> ಮತ್ತು ಸುರಕ್ಷಿತ ಬ್ಯಾಂಕಿಂಗ್.' : 'Smarter, Safer Banking in <span class="gradient-text">Your Own Voice.</span>');
+            setText('hero-desc', isKn 
+                ? 'ಗಂಟೆಗಟ್ಟಲೆ ಸರತಿಯಲ್ಲಿ ನಿಲ್ಲದೆ, ಕೇವಲ ಕನ್ನಡ ಅಥವಾ ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ಮಾತನಾಡುವ ಮೂಲಕ 2 ನಿಮಿಷಗಳಲ್ಲಿ ಖಾತೆ ತೆರೆಯಿರಿ, ಹಣ ಕಳುಹಿಸಿ ಮತ್ತು ಕಾರ್ಡ್ ನಿರ್ವಹಿಸಿ. ಗೂಗಲ್ ಜೆಮಿನಿ AI ಚಾಲಿತ ಸ್ವಾಯತ್ತ ಬ್ಯಾಂಕಿಂಗ್!'
+                : 'Experience zero-friction digital banking powered by Google Gemini AI & WebRTC. Open an account in 2 minutes, transfer funds, check balances, and freeze cards simply by speaking naturally in Kannada or English.');
+            setHtml('btn-hero-register', `<i class="fa-solid fa-sparkles"></i> <span>${isKn ? 'ಹೊಸ ಖಾತೆ ತೆರೆಯಿರಿ (ನೋಂದಣಿ)' : 'Open New Account (Register)'}</span>`);
+            setHtml('btn-hero-login', `<i class="fa-solid fa-key" style="color: #4f46e5;"></i> <span>${isKn ? 'ಖಾತೆಗೆ ಲಾಗಿನ್ ಮಾಡಿ' : 'Login to Account'}</span>`);
+
+            // Trust
+            setHtml('trust-1', `<i class="fa-solid fa-circle-check"></i> <span>${isKn ? '₹0 ಕನಿಷ್ಠ ಬ್ಯಾಲೆನ್ಸ್' : 'Zero Min Balance'}</span>`);
+            setHtml('trust-2', `<i class="fa-solid fa-circle-check"></i> <span>${isKn ? '2 ನಿಮಿಷದಲ್ಲಿ e-KYC' : '2-Min Live e-KYC'}</span>`);
+            setHtml('trust-3', `<i class="fa-solid fa-circle-check"></i> <span>${isKn ? '100% ಧ್ವನಿ ಮಾರ್ಗದರ್ಶನ' : '100% Voice-Guided'}</span>`);
+            setHtml('trust-4', `<i class="fa-solid fa-circle-check"></i> <span>${isKn ? '256-ಬಿಟ್ ಬ್ಯಾಂಕಿಂಗ್ ಭದ್ರತೆ' : 'Bank-Grade Security'}</span>`);
+
+            // Assistant Card
+            setText('assistant-intro', isKn 
+                ? 'ನಮಸ್ಕಾರ! ನಾನು ಸಿರಿ, ನಿಮ್ಮ AI ಬ್ಯಾಂಕಿಂಗ್ ಸಹಾಯಕ. ಬಡ್ಡಿದರಗಳು, ಖಾತೆ ತೆರೆಯುವಿಕೆ ಅಥವಾ ಕೊಡುಗೆಗಳ ಕುರಿತು ಕನ್ನಡದಲ್ಲೇ ಮಾತನಾಡಿ ಕೇಳಿ!'
+                : 'Hello! I am SIRI, your Autonomous AI Banking Assistant. Ask me about interest rates, account opening, or loan offers hands-free in Kannada or English!');
+            setHtml('wake-word-banner', `<i class="fa-solid fa-microphone-lines fa-fade"></i> <span>${isKn ? 'ವೇಕ್ ವರ್ಡ್: <strong>"ಹೇ ಸಿರಿ"</strong> ಅಥವಾ <strong>"ನಮಸ್ಕಾರ"</strong> ಎಂದು ಹೇಳಿ' : 'Wake Word: Say <strong>"Hey Siri"</strong> or <strong>"Namaskara"</strong>'}</span>`);
+            setText('chips-title', isKn ? 'ತ್ವರಿತ ಧ್ವನಿ ಪ್ರಶ್ನೆಗಳು (ಕ್ಲಿಕ್ ಮಾಡಿ):' : 'Popular Inquiries (Click to Ask):');
+            setHtml('chip-1', `<span><i class="fa-solid fa-percent" style="color: #38bdf8; margin-right: 8px;"></i> ${isKn ? 'ಎಫ್‌ಡಿ ಬಡ್ಡಿದರ ಎಷ್ಟು?' : 'What are your FD interest rates?'}</span><i class="fa-solid fa-volume-high" style="color: #94a3b8; font-size: 0.8rem;"></i>`);
+            setHtml('chip-2', `<span><i class="fa-solid fa-user-plus" style="color: #10b981; margin-right: 8px;"></i> ${isKn ? 'ಹೊಸ ಖಾತೆ ಹೇಗೆ ತೆರೆಯುವುದು?' : 'How do I open an account?'}</span><i class="fa-solid fa-volume-high" style="color: #94a3b8; font-size: 0.8rem;"></i>`);
+            setHtml('chip-3', `<span><i class="fa-solid fa-credit-card" style="color: #f59e0b; margin-right: 8px;"></i> ${isKn ? 'ಡೆಬಿಟ್ ಕಾರ್ಡ್ ಆಫರ್‌ಗಳು ಯಾವುವು?' : 'Tell me about RuPay Debit Card offers'}</span><i class="fa-solid fa-volume-high" style="color: #94a3b8; font-size: 0.8rem;"></i>`);
+            setHtml('chip-4', `<span><i class="fa-solid fa-wheat-awn" style="color: #34d399; margin-right: 8px;"></i> ${isKn ? 'ಕೃಷಿ ಸಾಲದ ವಿವರ ಹೇಳಿ' : 'Tell me about Kisan Agri Loans at 4%'}</span><i class="fa-solid fa-volume-high" style="color: #94a3b8; font-size: 0.8rem;"></i>`);
+            setHtml('btn-talk-siri', `<i class="fa-solid fa-microphone"></i> <span>${isKn ? 'ಸಿರಿ AI ಜೊತೆ ಮಾತನಾಡಿ' : 'Talk to SIRI AI Assistant'}</span>`);
+
+            // Offers & Rates
+            setText('sec-tag-offers', isKn ? 'ಉನ್ನತ ಲಾಭ & ಕೊಡುಗೆಗಳು' : 'High Yield & Rewards');
+            setText('sec-title-offers', isKn ? 'ವಿಶೇಷ ಬ್ಯಾಂಕಿಂಗ್ ಕೊಡುಗೆಗಳು ಮತ್ತು ಬಡ್ಡಿದರಗಳು' : 'Exclusive Banking Offers & Interest Rates');
+            setText('sec-desc-offers', isKn ? 'ನಿಮ್ಮ ಹಣಕ್ಕೆ ಗರಿಷ್ಠ ಲಾಭ ಮತ್ತು ಅತ್ಯುತ್ತಮ ಸೌಲಭ್ಯಗಳನ್ನು ಒದಗಿಸುವ ಆಕರ್ಷಕ ಬ್ಯಾಂಕಿಂಗ್ ಯೋಜನೆಗಳು.' : 'Industry-leading fixed returns, lifetime-free cards, and subsidized agriculture credit.');
+            setText('badge-offer-1', isKn ? 'ಜನಪ್ರಿಯ' : 'Most Popular');
+            setText('title-offer-1', isKn ? 'ಟ್ರಿಪಲ್ ಡಿಲೈಟ್ ಫಿಕ್ಸ್ಡ್ ಡೆಪಾಸಿಟ್ (FD)' : 'Triple Delight Fixed Deposit (FD)');
+            setHtml('desc-offer-1', isKn 
+                ? 'ಹಿರಿಯ ನಾಗರಿಕರಿಗೆ ಹೆಚ್ಚುವರಿ <strong>8.35% p.a.</strong> ಬಡ್ಡಿ. ಯಾವುದೇ ತುರ್ತು ಸಂದರ್ಭದಲ್ಲಿ ಅವಧಿಗೆ ಮುನ್ನ ಹಿಂಪಡೆಯಲು ಶೂನ್ಯ ದಂಡ.'
+                : 'Extra <strong>0.50% (8.35% p.a.)</strong> for Senior Citizens. Guaranteed quarterly compounding and zero premature penalty for emergencies.');
+            setText('btn-offer-1', isKn ? 'ಎಫ್‌ಡಿ ಖಾತೆ ತೆರೆಯಿರಿ' : 'Open FD Account');
+            setText('badge-offer-2', isKn ? 'ಮೊದಲ ವರ್ಷ ಉಚಿತ' : 'Zero Fee');
+            setText('title-offer-2', isKn ? 'ಸಿರಿ ರೂಪೇ ಪ್ಲಾಟಿನಮ್ ಕಾರ್ಡ್' : 'SIRI Contactless RuPay Platinum');
+            setHtml('rate-offer-2', `₹0 <span>${isKn ? 'ವಾರ್ಷಿಕ ಶುಲ್ಕ' : 'Annual Fee (Yr 1)'}</span>`);
+            setText('desc-offer-2', isKn 
+                ? 'ಯುಪಿಐ ಪಾವತಿಗಳಲ್ಲಿ 2x ರಿವಾರ್ಡ್ ಪಾಯಿಂಟ್‌ಗಳು. ವಿಮಾನ ನಿಲ್ದಾಣ ಲಾಂಜ್ ಪ್ರವೇಶ ಮತ್ತು 1-ಕ್ಲಿಕ್ ಧ್ವನಿ ಫ್ರೀಜ್ ಭದ್ರತೆ.'
+                : '2x reward points on UPI payments, free domestic airport lounge access, and instant voice-guided card freezing for safety.');
+            setText('btn-offer-2', isKn ? 'ಕಾರ್ಡ್ ಪಡೆಯಿರಿ' : 'Get Platinum Card');
+            setText('badge-offer-3', isKn ? 'ಸಬ್ಸಿಡಿ ದರ' : 'Subsidized');
+            setText('title-offer-3', isKn ? 'ಕಿಸಾನ್ ವಾಯ್ಸ್ ಕೃಷಿ ಸಾಲ' : 'Kisan Voice Agri-Credit');
+            setText('desc-offer-3', isKn 
+                ? 'ಕರ್ನಾಟಕದ ರೈತರಿಗೆ ವಿಶೇಷ ಸಬ್ಸಿಡಿ ಸಾಲ. ಯಾವುದೇ ಕಾಗದಪತ್ರಗಳಿಲ್ಲದೆ ನೇರ ಡಿಬಿಟಿ ಸಹಾಯಧನ ಲಿಂಕಿಂಗ್.'
+                : 'Highly subsidized interest for Karnataka farmers with zero paperwork, direct DBT subsidy linkage, and flexible harvest repayments.');
+            setText('btn-offer-3', isKn ? 'ಸಾಲಕ್ಕೆ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ' : 'Apply for Agri Credit');
+            setText('title-offer-4', isKn ? 'ಸ್ಮಾರ್ಟ್ ಗೃಹ ಸಾಲ' : 'Smart Home Loans');
+            setText('desc-offer-4', isKn 
+                ? 'ಮಹಿಳಾ ಅರ್ಜಿದಾರರಿಗೆ ಶೂನ್ಯ ಪ್ರೊಸೆಸಿಂಗ್ ಶುಲ್ಕ. 24 ಗಂಟೆಗಳಲ್ಲಿ ಡಿಜಿಟಲ್ ಪೂರ್ವ-ಅನುಮೋದನೆ.'
+                : 'Zero processing fee for women co-applicants and instant paperless pre-approval in under 24 hours.');
+            setText('btn-offer-4', isKn ? 'ವಿವರ ನೋಡಿ' : 'Check Eligibility');
+
+            // Calculator
+            setText('calc-tag', isKn ? 'ಉಚಿತ ಉಳಿತಾಯ ಕ್ಯಾಲ್ಕುಲೇಟರ್' : 'Interactive Savings Tool');
+            setText('calc-heading', isKn ? 'ನಿಮ್ಮ ಎಫ್‌ಡಿ ಆದಾಯವನ್ನು ತಕ್ಷಣ ಲೆಕ್ಕಹಾಕಿ' : 'Calculate Your Fixed Deposit Growth');
+            setText('lbl-calc-amount', isKn ? 'ಹೂಡಿಕೆ ಮೊತ್ತ (Deposit Amount):' : 'Deposit Amount:');
+            setText('lbl-calc-tenure', isKn ? 'ಅವಧಿ (Tenure in Years):' : 'Tenure (Years):');
+            setText('calc-disclaimer', isKn ? '* ವಾರ್ಷಿಕ 7.85% ಚಕ್ರಬಡ್ಡಿ ಆಧಾರದ ಮೇಲೆ. ಹಿರಿಯ ನಾಗರಿಕರಿಗೆ ಹೆಚ್ಚುವರಿ 0.50% ದೊರೆಯುತ್ತದೆ.' : '* Based on annual compounding at 7.85% p.a. Senior citizens earn extra 0.50%.');
+            setText('lbl-calc-maturity', isKn ? 'ಅಂದಾಜು ಮುಕ್ತಾಯ ಮೌಲ್ಯ (Maturity Value):' : 'Estimated Maturity Value:');
+            setText('lbl-calc-interest', isKn ? 'ಗಳಿಸಿದ ಬಡ್ಡಿ:' : 'Total Interest Earned:');
+            setText('btn-calc-cta', isKn ? 'ಈ ಬಡ್ಡಿದರದಲ್ಲಿ ಖಾತೆ ತೆರೆಯಿರಿ' : 'Lock in 7.85% Rate - Open Account');
+
+            // Features
+            setText('feat-tag', isKn ? 'ನಾವೀನ್ಯತೆ & ತಂತ್ರಜ್ಞಾನ' : 'Why SIRI BANK');
+            setText('feat-heading', isKn ? 'ಬ್ಯಾಂಕಿಂಗ್ ಇಷ್ಟೊಂದು ಸರಳ ಮತ್ತು ಸುರಕ್ಷಿತ' : 'Banking Re-imagined For Everyone');
+            setText('feat-sub', isKn ? 'ಪ್ರತಿಯೊಬ್ಬ ಭಾರತೀಯ ನಾಗರಿಕರಿಗಾಗಿ ವಿನ್ಯಾಸಗೊಳಿಸಲಾದ ಧ್ವನಿ-ಪ್ರಥಮ ಡಿಜಿಟಲ್ ಬ್ಯಾಂಕ್.' : 'Eliminating digital and literacy barriers through voice intelligence and modern cryptography.');
+            setText('feat-1-title', isKn ? 'ಶೂನ್ಯ-ಕ್ಲಿಕ್ ಧ್ವನಿ ಬ್ಯಾಂಕಿಂಗ್' : 'Zero-Click Voice First');
+            setText('feat-1-desc', isKn ? 'ಯಾವುದೇ ಮೆನು ಹುಡುಕುವ ಅಗತ್ಯವಿಲ್ಲ. ಕೇವಲ ಮಾತನಾಡಿ ಹಣ ಕಳುಹಿಸಿ, ಬ್ಯಾಲೆನ್ಸ್ ನೋಡಿ.' : 'No confusing drop-downs. Perform transfers, inquiries, and card management via speech.');
+            setText('feat-2-title', isKn ? 'ಲೈವ್ ವೆಬ್‌ಕ್ಯಾಮ್ e-KYC' : 'Webcam Live e-KYC');
+            setText('feat-2-desc', isKn ? 'ಬ್ಯಾಂಕ್ ಶಾಖೆಗೆ ಹೋಗದೆ ಮನೆಯಿಂದಲೇ ನೈಜ-ಸಮಯದ ಮುಖ ಲೈವ್‌ನೆಸ್ ಮೂಲಕ ಖಾತೆ ದೃಢೀಕರಣ.' : 'Paperless verification with anti-spoofing webcam selfie and digital Aadhaar submission.');
+            setText('feat-3-title', isKn ? '1-ಕ್ಲಿಕ್ ಕಾರ್ಡ್ ಫ್ರೀಜ್' : 'Instant Card Freeze');
+            setText('feat-3-desc', isKn ? 'ಕಾರ್ಡ್ ಕಳೆದುಹೋದರೆ ತಕ್ಷಣ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಅಥವಾ ಧ್ವನಿ ಮೂಲಕ ಫ್ರೀಜ್ ಮಾಡಿ ವಂಚನೆ ತಡೆಯಿರಿ.' : 'Misplaced your card? Freeze and unfreeze instantly from dashboard or voice without hotline queues.');
+            setText('feat-4-title', isKn ? 'ಸಂಪೂರ್ಣ ಕನ್ನಡ ಮತ್ತು ಇಂಗ್ಲಿಷ್' : 'Bilingual Equality');
+            setText('feat-4-desc', isKn ? 'ಕೃತಕ ಅನುವಾದವಲ್ಲದೆ, ಸಹಜ ಆಡುಭಾಷೆಯ ಕನ್ನಡದಲ್ಲೇ ಪೂರ್ಣ ಸಂಭಾಷಣೆ ನಡೆಸುವ AI.' : 'Deep conversational understanding in Kannada (kn-IN) and English across all flows.');
+
+            // Modal
+            setText('modal-subtitle', isKn ? 'ಸುರಕ್ಷಿತ AI ಬ್ಯಾಂಕಿಂಗ್ ಪೋರ್ಟಲ್' : 'Secure AI Banking Access');
+            setHtml('tab-btn-login', `<i class="fa-solid fa-right-to-bracket" style="margin-right: 6px;"></i> ${isKn ? 'ಲಾಗಿನ್' : 'Login to Account'}`);
+            setHtml('tab-btn-register', `<i class="fa-solid fa-user-plus" style="margin-right: 6px;"></i> ${isKn ? 'ಹೊಸ ಖಾತೆ (ನೋಂದಣಿ)' : 'Open Account'}`);
+            setText('label-identifier', isKn ? 'ಆಧಾರ್ / ಗ್ರಾಹಕ ಐಡಿ / ಮೊಬೈಲ್ ಸಂಖ್ಯೆ' : 'Aadhaar / Customer ID / Phone');
+            setPlaceholder('identifier', isKn ? 'ಆಧಾರ್, ಮೊಬೈಲ್ ಅಥವಾ ಗ್ರಾಹಕ ಐಡಿ (ಉದಾ: CUST1001)' : 'Enter Aadhaar, Phone or ID (e.g. CUST1001)');
+            setText('label-password', isKn ? 'ಪಾಸ್‌ವರ್ಡ್' : 'Password');
+            setPlaceholder('password', isKn ? 'ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ' : 'Enter your password');
+            setHtml('login-btn', `<i class="fa-solid fa-arrow-right-to-bracket" style="margin-right: 8px;"></i> ${isKn ? 'ಖಾತೆಗೆ ಲಾಗಿನ್ ಮಾಡಿ' : 'Sign In to Account'}`);
+
+            setHtml('link-check-status', `<i class="fa-solid fa-magnifying-glass"></i> ${isKn ? 'ಅರ್ಜಿ / ನೋಂದಣಿ ಸ್ಥಿತಿ ಪರಿಶೀಲಿಸಿ' : 'Check Application / Registration Status'}`);
+
+            setText('voice-reg-title', isKn ? 'ಧ್ವನಿ ನೋಂದಣಿ ಮತ್ತು ಸಹಾಯ' : 'Voice Registration Assist');
+            setText('voice-reg-desc', isKn ? 'ಓದಲು ಕಷ್ಟವೇ? ಕ್ಲಿಕ್ ಮಾಡಿ, AI ನಿಮಗಾಗಿ ಭರ್ತಿ ಮಾಡುತ್ತದೆ!' : 'Difficulty typing? Click & speak, AI will register for you!');
+            setText('label-reg-name', isKn ? 'ಪೂರ್ಣ ಹೆಸರು' : 'Full Name');
+            setPlaceholder('reg_name', isKn ? 'ಉದಾ: ರಮೇಶ್ ಕುಮಾರ್' : 'e.g. Ramesh Kumar');
+            setText('label-reg-phone', isKn ? 'ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (10 ಅಂಕಿಗಳು)' : 'Mobile Number (10 digits)');
+            setPlaceholder('reg_phone', isKn ? '10 ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ' : '10-digit mobile number');
+            setText('label-reg-aadhaar', isKn ? 'ಆಧಾರ್ ಸಂಖ್ಯೆ (12 ಅಂಕಿಗಳು)' : 'Aadhaar Number (12 digits)');
+            setPlaceholder('reg_aadhaar', isKn ? '12 ಅಂಕಿಯ ಆಧಾರ್ ಸಂಖ್ಯೆ' : '12-digit Aadhaar number');
+            setText('label-reg-password', isKn ? 'ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ' : 'Create Password / PIN');
+            setPlaceholder('reg_password', isKn ? 'ಕನಿಷ್ಠ 4 ಅಕ್ಷರಗಳು' : 'Minimum 4 characters');
+            setText('label-reg-lang', isKn ? 'ಆದ್ಯತೆಯ ಭಾಷೆ' : 'Preferred Language');
+            setHtml('register-btn', `<i class="fa-solid fa-user-check" style="margin-right: 8px;"></i> ${isKn ? 'ಅನುಮೋದನೆಗಾಗಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ' : 'Submit Application for Approval'}`);
+
+            // Status Checker Modal
+            setHtml('status-modal-title', `<i class="fa-solid fa-clipboard-check" style="color: #4f46e5;"></i> ${isKn ? 'ಅರ್ಜಿ ಸ್ಥಿತಿ ಪರಿಶೀಲನೆ' : 'Application Status Check'}`);
+            setText('status-modal-desc', isKn ? 'ನಿಮ್ಮ ನೋಂದಣಿ ಅನುಮೋದನೆ ಸ್ಥಿತಿ ತಿಳಿಯಲು ಮೊಬೈಲ್ ಅಥವಾ ಆಧಾರ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ.' : 'Enter your Registered Mobile Number or Aadhaar to check approval status.');
+            setPlaceholder('status-checker-input', isKn ? 'ಮೊಬೈಲ್ ಅಥವಾ ಆಧಾರ್ ಸಂಖ್ಯೆ' : 'Enter Phone or Aadhaar');
+            setText('btn-status-check', isKn ? 'ಪರಿಶೀಲಿಸಿ' : 'Check Status');
+            setText('btn-status-close', isKn ? 'ಮುಚ್ಚಿ' : 'Close');
+
+            // Recalculate slider returns to format labels in current language
+            calculateReturns();
+        }
+
+        // Global hook so main.js voice sync also mutates landing page
+        window.changeLanguage = changeLanguage;
+
+        // Close on Escape Key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAuthModal();
+                closeStatusModal();
+                closeAccountStateModal();
+            }
+        });
+
+        window.changeLanguage = changeLanguage;
+
+        // Auto-open modal if URL specifies /login or /register, and restore preferred language
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('siri_bank_lang') || '{{ language or "Kannada" }}';
+            changeLanguage(savedLang);
+
+            const p = window.location.pathname;
+            const q = window.location.search;
+            if (p === '/register' || p === '/signup' || q.includes('mode=register')) {
+                openAuthModal('register');
+            } else if (p === '/login' || q.includes('mode=login')) {
+                openAuthModal('login');
+            }
+            calculateReturns();
+        });
+
+        // Interactive FD Calculator
+        function calculateReturns() {
+            const p = parseFloat(document.getElementById('slider-amount').value);
+            const t = parseFloat(document.getElementById('slider-tenure').value);
+            const r = 0.0785; // 7.85%
+
+            document.getElementById('calc-amount-label').innerText = '₹ ' + p.toLocaleString('en-IN');
+            document.getElementById('calc-tenure-label').innerText = t + (t === 1 ? ' Year' : ' Years');
+
+            // Compound Interest: A = P * (1 + r)^t
+            const a = p * Math.pow(1 + r, t);
+            const interest = a - p;
+
+            document.getElementById('calc-maturity-val').innerText = '₹ ' + Math.round(a).toLocaleString('en-IN');
+            document.getElementById('calc-interest-val').innerText = '₹ ' + Math.round(interest).toLocaleString('en-IN');
+        }
+
+        // Quick Assistant Chip Trigger
+        function askSiriDirect(query) {
+            openChat();
+            const chatInput = document.getElementById('chat-input');
+            if (chatInput) {
+                chatInput.value = query;
+                sendMessage();
+            }
+        }
+
+        function startVoiceHomeAssistant() {
+            openChat();
+            const curLang = localStorage.getItem('siri_bank_lang') || 'English';
+            const welcome = (curLang === 'English')
+                ? "Hello! I am your SIRI AI Banking Assistant. How can I help you today?"
+                : "ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ ಸಿರಿ AI ಬ್ಯಾಂಕಿಂಗ್ ಸಹಾಯಕ. ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?";
+            appendMessage(welcome, 'bot');
+            speakText(welcome);
+            setTimeout(() => {
+                startVoice();
+            }, 2500);
+        }
+
+        // Voice Registration Guided Prompt
+        function startVoiceRegistrationPrompt() {
+            sessionStorage.removeItem('siri_reg_flow');
+            openAuthModal('register');
+            openChat();
+            const currentLang = localStorage.getItem('siri_bank_lang') || 'English';
+            const greeting = (currentLang === 'English')
+                ? "Welcome to SIRI Bank registration! I will guide you hands-free step by step. To start, please tell me your full name."
+                : "ಸಿರಿ ಬ್ಯಾಂಕ್ ನೋಂದಣಿಗೆ ಸುಸ್ವಾಗತ! ನಾನು ನಿಮಗೆ ಹಂತ ಹಂತವಾಗಿ ಸಹಾಯ ಮಾಡುತ್ತೇನೆ. ಪ್ರಾರಂಭಿಸಲು ದಯವಿಟ್ಟು ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರು ಹೇಳಿ.";
+            appendMessage(greeting, 'bot');
+            speakText(greeting);
+            setTimeout(() => {
+                const nameInp = document.getElementById('reg_name');
+                if (nameInp) {
+                    nameInp.focus();
+                    if (typeof highlightVoiceField === 'function') highlightVoiceField(nameInp);
+                }
+                startVoice();
+            }, 3000);
+        }
+
+        // Login Handler
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+
+            const identifier = document.getElementById('identifier').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier, password })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionStorage.removeItem('siri_chat_history_turns');
+                    sessionStorage.removeItem('siri_reg_flow');
+                    sessionStorage.removeItem('siri_pending_submit_form');
+                    window.location.href = data.redirect || '/home';
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket" style="margin-right: 8px;"></i> Sign In to Account';
+                    
+                    const curLang = localStorage.getItem('siri_bank_lang') || 'English';
+                    if (data.status_type === 'PENDING') {
+                        showAccountStateModal('PENDING', data.message);
+                        speakText(curLang === 'English'
+                            ? "Your account registration is awaiting bank administrator verification."
+                            : "ನಿಮ್ಮ ಖಾತೆ ನೋಂದಣಿಯನ್ನು ಬ್ಯಾಂಕ್ ಮ್ಯಾನೇಜರ್ ಪರಿಶೀಲಿಸುತ್ತಿದ್ದಾರೆ. ದಯವಿಟ್ಟು ನಿರೀಕ್ಷಿಸಿ.");
+                    } else if (data.status_type === 'REJECTED') {
+                        showAccountStateModal('REJECTED', data.message);
+                        speakText(curLang === 'English'
+                            ? "Your account registration has been rejected by the administrator."
+                            : "ನಿಮ್ಮ ಖಾತೆ ನೋಂದಣಿ ತಿರಸ್ಕರಿಸಲ್ಪಟ್ಟಿದೆ.");
+                    } else {
+                        showToast(data.message || "Invalid credentials");
+                    }
+                }
+            } catch (e) {
+                showToast("Connection failed. Check backend.");
+                btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket" style="margin-right: 8px;"></i> Sign In to Account';
+            }
+        });
+
+        let regPhotoBase64 = null;
+        let regIdProofBase64 = null;
+
+        let activeCameraStream = null;
+        let currentCameraTarget = 'photo'; // 'photo' or 'idproof'
+        let currentCapturedBase64 = null;
+        let cameraTimerInterval = null;
+
+        // Open Live Web Camera
+        async function openLiveCamera(targetType = 'photo') {
+            currentCameraTarget = targetType;
+            currentCapturedBase64 = null;
+
+            // Ensure registration form / authModal is visible
+            openAuthModal('register');
+
+            const modal = document.getElementById('cameraModal');
+            if (modal) modal.style.display = 'flex';
+
+            const titleText = document.getElementById('cameraTitleText');
+            const subtitle = document.getElementById('cameraModalSubtitle');
+            const faceGuide = document.getElementById('camFaceGuide');
+            const idGuide = document.getElementById('camIdGuide');
+            const snapText = document.getElementById('btnSnapText');
+            const useText = document.getElementById('btnUseText');
+            const curLang = localStorage.getItem('siri_bank_lang') || 'English';
+            const isKn = (curLang === 'Kannada');
+
+            if (targetType === 'photo') {
+                if (titleText) titleText.innerText = isKn ? "ಪ್ರೊಫೈಲ್ ಫೋಟೋ ಕ್ಯಾಮೆರಾ" : "Profile Photo Capture";
+                if (subtitle) subtitle.innerText = isKn ? "ಕ್ಯಾಮೆರಾ ನೋಡಿ, 'ಕ್ಲಿಕ್ ಮಾಡಿ' ಎಂದು ಹೇಳಿ ಅಥವಾ ಬಟನ್ ಒತ್ತಿರಿ" : "Look at the camera and say 'Click' or press button below";
+                if (faceGuide) faceGuide.style.display = 'flex';
+                if (idGuide) idGuide.style.display = 'none';
+                if (snapText) snapText.innerText = isKn ? "ಫೋಟೋ ಕ್ಲಿಕ್ ಮಾಡಿ" : "Click Photo";
+                if (useText) useText.innerText = isKn ? "ಪ್ರೊಫೈಲ್ ಫೋಟೋ ಬಳಸಿ" : "Use As Profile Photo";
+            } else {
+                if (titleText) titleText.innerText = isKn ? "ಗುರುತಿನ ಚೀಟಿ (ID Proof) ಸ್ಕ್ಯಾನ್" : "Scan ID Proof Document";
+                if (subtitle) subtitle.innerText = isKn ? "ನಿಮ್ಮ ಗುರುತಿನ ಚೀಟಿಯನ್ನು ಚೌಕಟ್ಟಿನಲ್ಲಿ ಹಿಡಿದು 'ಕ್ಲಿಕ್ ಮಾಡಿ' ಎಂದು ಹೇಳಿ" : "Hold your ID card in the frame and say 'Click' or tap button";
+                if (faceGuide) faceGuide.style.display = 'none';
+                if (idGuide) idGuide.style.display = 'flex';
+                if (snapText) snapText.innerText = isKn ? "ದಾಖಲೆ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ" : "Scan ID Document";
+                if (useText) useText.innerText = isKn ? "ಈ ದಾಖಲೆ ಬಳಸಿ" : "Use This ID Proof";
+            }
+
+            // Reset preview states
+            const video = document.getElementById('liveCameraVideo');
+            const previewImg = document.getElementById('liveCameraPreviewImg');
+            const liveControls = document.getElementById('camLiveControls');
+            const previewControls = document.getElementById('camPreviewControls');
+            const countdownOverlay = document.getElementById('camCountdownOverlay');
+
+            if (video) video.style.display = 'block';
+            if (previewImg) previewImg.style.display = 'none';
+            if (liveControls) liveControls.style.display = 'flex';
+            if (previewControls) previewControls.style.display = 'none';
+            if (countdownOverlay) countdownOverlay.style.display = 'none';
+
+            // Start webcam video stream
+            try {
+                if (activeCameraStream) {
+                    activeCameraStream.getTracks().forEach(t => t.stop());
+                }
+                const constraints = {
+                    video: {
+                        facingMode: (targetType === 'photo' ? 'user' : 'environment'),
+                        width: { ideal: 1280 },
+                        height: { ideal: 960 }
+                    },
+                    audio: false
+                };
+                activeCameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+                if (video) {
+                    video.srcObject = activeCameraStream;
+                    await video.play();
+                }
+            } catch (err) {
+                console.error("Camera access error:", err);
+                showToast(isKn ? "ಕ್ಯಾಮೆರಾ ಪ್ರವೇಶಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ಅನುಮತಿ ನೀಡಿ." : "Could not access camera. Please allow camera permissions.");
+                closeLiveCamera();
+            }
+        }
+
+        // Capture snapshot from video stream
+        function captureLivePhoto() {
+            const video = document.getElementById('liveCameraVideo');
+            const canvas = document.getElementById('liveCameraCanvas');
+            const previewImg = document.getElementById('liveCameraPreviewImg');
+            const flash = document.getElementById('camFlashEffect');
+            const liveControls = document.getElementById('camLiveControls');
+            const previewControls = document.getElementById('camPreviewControls');
+
+            if (!video || !canvas || !video.videoWidth) return;
+
+            // Flash effect animation
+            if (flash) {
+                flash.style.opacity = '1';
+                setTimeout(() => { flash.style.opacity = '0'; }, 150);
+            }
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+
+            // Mirror if front camera for natural selfie orientation
+            if (currentCameraTarget === 'photo') {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            currentCapturedBase64 = canvas.toDataURL('image/jpeg', 0.9);
+
+            if (previewImg) {
+                previewImg.src = currentCapturedBase64;
+                previewImg.style.display = 'block';
+            }
+            if (video) video.style.display = 'none';
+            if (liveControls) liveControls.style.display = 'none';
+            if (previewControls) previewControls.style.display = 'flex';
+
+            // Conversational Voice Prompt: Ask user to confirm or retake hands-free
+            const curLang = localStorage.getItem('siri_bank_lang') || 'English';
+            const isKn = (curLang === 'Kannada');
+            const queryMsg = (currentCameraTarget === 'photo')
+                ? (isKn ? "ಫೋಟೋ ತೆಗೆಯಲಾಗಿದೆ! ಈ ಫೋಟೋ ಸರಿಯಾಗಿದೆಯೇ? ಮುಂದುವರಿಯಲು 'ದೃಢೀಕರಿಸಿ' ಅಥವಾ 'ಸರಿ' ಎಂದು ಹೇಳಿ, ಅಥವಾ 'ಮತ್ತೆ ತೆಗೆಯಿರಿ' ಎಂದು ಹೇಳಿ."
+                       : "Photo captured! Does it look good? Say 'Confirm' to use it, or say 'Retake' to take another.")
+                : (isKn ? "ಗುರುತಿನ ಚೀಟಿ ಸ್ಕ್ಯಾನ್ ಮಾಡಲಾಗಿದೆ! ಈ ದಾಖಲೆ ಸರಿಯಾಗಿದೆಯೇ? ಮುಂದುವರಿಯಲು 'ದೃಢೀಕರಿಸಿ' ಅಥವಾ 'ಸರಿ' ಎಂದು ಹೇಳಿ, ಅಥವಾ 'ಮತ್ತೆ ತೆಗೆಯಿರಿ' ಎಂದು ಹೇಳಿ."
+                       : "ID document scanned! Say 'Confirm' to use this document, or say 'Retake' to scan again.");
+            
+            if (typeof appendMessage === 'function') appendMessage(queryMsg, 'bot');
+            if (typeof speakText === 'function') speakText(queryMsg);
+        }
+
+        // 3-second countdown timer capture
+        function startTimerCapture(seconds = 3) {
+            const overlay = document.getElementById('camCountdownOverlay');
+            if (!overlay) return;
+            overlay.style.display = 'flex';
+            let count = seconds;
+            overlay.innerText = count;
+
+            if (cameraTimerInterval) clearInterval(cameraTimerInterval);
+            cameraTimerInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    overlay.innerText = count;
+                } else {
+                    clearInterval(cameraTimerInterval);
+                    cameraTimerInterval = null;
+                    overlay.style.display = 'none';
+                    captureLivePhoto();
+                }
+            }, 1000);
+        }
+
+        // Retake snapshot
+        function retakeLivePhoto() {
+            currentCapturedBase64 = null;
+            const video = document.getElementById('liveCameraVideo');
+            const previewImg = document.getElementById('liveCameraPreviewImg');
+            const liveControls = document.getElementById('camLiveControls');
+            const previewControls = document.getElementById('camPreviewControls');
+
+            if (video) video.style.display = 'block';
+            if (previewImg) previewImg.style.display = 'none';
+            if (liveControls) liveControls.style.display = 'flex';
+            if (previewControls) previewControls.style.display = 'none';
+
+            const curLang = localStorage.getItem('siri_bank_lang') || 'English';
+            const isKn = (curLang === 'Kannada');
+            const retakeMsg = isKn ? "ಸರಿ, ಮತ್ತೆ ತೆಗೆಯೋಣ. ಕ್ಯಾಮೆರಾ ನೋಡಿ 'ಕ್ಲಿಕ್ ಮಾಡಿ' ಎಂದು ಹೇಳಿ!" : "Okay, let's retake it. Look at the camera and say 'Click' when ready!";
+            if (typeof appendMessage === 'function') appendMessage(retakeMsg, 'bot');
+            if (typeof speakText === 'function') speakText(retakeMsg);
+        }
+
+        // Confirm & Attach photo to form
+        function confirmLivePhoto() {
+            if (!currentCapturedBase64) return;
+            const curLang = localStorage.getItem('siri_bank_lang') || 'English';
+            const isKn = (curLang === 'Kannada');
+            const previousTarget = currentCameraTarget;
+
+            if (previousTarget === 'photo') {
+                regPhotoBase64 = currentCapturedBase64;
+                window.regPhotoBase64 = currentCapturedBase64;
+                const photoHasEl = document.getElementById('reg_has_photo');
+                if (photoHasEl) photoHasEl.value = 'true';
+                const img = document.getElementById('photo_preview');
+                if (img) img.src = currentCapturedBase64;
+                const nameEl = document.getElementById('photo_name');
+                if (nameEl) nameEl.innerText = isKn ? "ಕ್ಯಾಮೆರಾ ಫೋಟೋ ಲಗತ್ತಿಸಲಾಗಿದೆ" : "Camera Selfie Captured";
+                const prompt = document.getElementById('photo_dropzone_prompt');
+                if (prompt) prompt.style.display = 'none';
+                const wrap = document.getElementById('photo_preview_wrap');
+                if (wrap) wrap.style.display = 'flex';
+                const dropzone = document.getElementById('photo-dropzone');
+                if (dropzone) dropzone.classList.add('has-file');
+
+                showToast(isKn ? "ಪ್ರೊಫೈಲ್ ಫೋಟೋ ಯಶಸ್ವಿಯಾಗಿ ಸೇರಿಸಲಾಗಿದೆ!" : "Profile photo captured successfully!");
+
+                // Sync reg_flow
+                let rf = {};
+                try { rf = JSON.parse(sessionStorage.getItem('siri_reg_flow') || '{}'); } catch(e){}
+                rf.photo = true;
+                sessionStorage.setItem('siri_reg_flow', JSON.stringify(rf));
+
+                // Auto-advance to next step: ID Proof Scan (zero click needed)
+                closeLiveCamera();
+                setTimeout(() => {
+                    openLiveCamera('idproof');
+                    const nextMsg = isKn ? "ಪ್ರೊಫೈಲ್ ಫೋಟೋ ಉಳಿಸಲಾಗಿದೆ! ಈಗ ನಿಮ್ಮ ಗುರುತಿನ ಚೀಟಿ (ಆಧಾರ್ ಅಥವಾ ಪ್ಯಾನ್ ಕಾರ್ಡ್) ಕ್ಯಾಮೆರಾ ಮುಂದೆ ಹಿಡಿದು 'ಕ್ಲಿಕ್ ಮಾಡಿ' ಎಂದು ಹೇಳಿ." : "Profile photo saved! Now please hold your ID card (Aadhaar or PAN) in front of the camera and say 'Click' to scan it.";
+                    if (typeof appendMessage === 'function') appendMessage(nextMsg, 'bot');
+                    if (typeof speakText === 'function') speakText(nextMsg);
+                }, 800);
+
+            } else {
+                regIdProofBase64 = currentCapturedBase64;
+                window.regIdProofBase64 = currentCapturedBase64;
+                const idHasEl = document.getElementById('reg_has_id_proof');
+                if (idHasEl) idHasEl.value = 'true';
+                const img = document.getElementById('id_preview');
+                if (img) img.src = currentCapturedBase64;
+                const nameEl = document.getElementById('id_name');
+                if (nameEl) nameEl.innerText = isKn ? "ಕ್ಯಾಮೆರಾ ID ಸ್ಕ್ಯಾನ್ ಲಗತ್ತಿಸಲಾಗಿದೆ" : "Camera ID Scan Attached";
+                const prompt = document.getElementById('idproof_dropzone_prompt');
+                if (prompt) prompt.style.display = 'none';
+                const wrap = document.getElementById('id_preview_wrap');
+                if (wrap) wrap.style.display = 'flex';
+                const dropzone = document.getElementById('idproof-dropzone');
+                if (dropzone) dropzone.classList.add('has-file');
+
+                showToast(isKn ? "ಗುರುತಿನ ಚೀಟಿ ಯಶಸ್ವಿಯಾಗಿ ಸೇರಿಸಲಾಗಿದೆ!" : "ID proof document scanned successfully!");
+
+                // Sync reg_flow
+                let rf = {};
+                try { rf = JSON.parse(sessionStorage.getItem('siri_reg_flow') || '{}'); } catch(e){}
+                rf.id_proof = true;
+                sessionStorage.setItem('siri_reg_flow', JSON.stringify(rf));
+
+                closeLiveCamera();
+
+                // Auto-advance to final step: Password Creation (zero click needed)
+                setTimeout(() => {
+                    const pwdInput = document.getElementById('reg_password');
+                    if (pwdInput) {
+                        pwdInput.focus();
+                        if (typeof highlightVoiceField === 'function') highlightVoiceField(pwdInput);
+                    }
+                    const pwdMsg = isKn ? "ಗುರುತಿನ ದಾಖಲೆ ಉಳಿಸಲಾಗಿದೆ! ಕೊನೆಯ ಹಂತ, ದಯವಿಟ್ಟು ನಿಮ್ಮ ಖಾತೆಗೆ ಪಾಸ್‌ವರ್ಡ್ ಅಥವಾ ಪಿನ್ ರಚಿಸಿ ಹೇಳಿ." : "ID document saved! Final step, please create a password or PIN for your account.";
+                    if (typeof appendMessage === 'function') appendMessage(pwdMsg, 'bot');
+                    if (typeof speakText === 'function') speakText(pwdMsg);
+                }, 600);
+            }
+        }
+
+        // Close camera and release webcam
+        function closeLiveCamera() {
+            if (cameraTimerInterval) {
+                clearInterval(cameraTimerInterval);
+                cameraTimerInterval = null;
+            }
+            if (activeCameraStream) {
+                activeCameraStream.getTracks().forEach(t => t.stop());
+                activeCameraStream = null;
+            }
+            const modal = document.getElementById('cameraModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function handleImagePreview(input, previewImgId, wrapId, promptId, dropzoneId, nameId) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const base64 = await fileToBase64(file);
+                if (input.id === 'reg_photo') {
+                    regPhotoBase64 = base64;
+                    window.regPhotoBase64 = base64;
+                    const photoHasEl = document.getElementById('reg_has_photo');
+                    if (photoHasEl) photoHasEl.value = 'true';
+                } else if (input.id === 'reg_id_proof') {
+                    regIdProofBase64 = base64;
+                    window.regIdProofBase64 = base64;
+                    const idHasEl = document.getElementById('reg_has_id_proof');
+                    if (idHasEl) idHasEl.value = 'true';
+                }
+                const img = document.getElementById(previewImgId);
+                if (img) img.src = base64;
+                const nameEl = document.getElementById(nameId);
+                if (nameEl) nameEl.innerText = file.name;
+                
+                const prompt = document.getElementById(promptId);
+                if (prompt) prompt.style.display = 'none';
+                const wrap = document.getElementById(wrapId);
+                if (wrap) wrap.style.display = 'flex';
+                const dropzone = document.getElementById(dropzoneId);
+                if (dropzone) dropzone.classList.add('has-file');
+            }
+        }
+
+        function removeUploadedFile(inputId, wrapId, promptId, dropzoneId) {
+            const input = document.getElementById(inputId);
+            if (input) input.value = '';
+            if (inputId === 'reg_photo') {
+                regPhotoBase64 = null;
+                window.regPhotoBase64 = null;
+                const photoHasEl = document.getElementById('reg_has_photo');
+                if (photoHasEl) photoHasEl.value = '';
+            }
+            if (inputId === 'reg_id_proof') {
+                regIdProofBase64 = null;
+                window.regIdProofBase64 = null;
+                const idHasEl = document.getElementById('reg_has_id_proof');
+                if (idHasEl) idHasEl.value = '';
+            }
+
+            const wrap = document.getElementById(wrapId);
+            if (wrap) wrap.style.display = 'none';
+            const prompt = document.getElementById(promptId);
+            if (prompt) prompt.style.display = 'block';
+            const dropzone = document.getElementById(dropzoneId);
+            if (dropzone) dropzone.classList.remove('has-file');
+        }
+
+        // Self-Registration Handler
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('register-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+            const payload = {
+                full_name: document.getElementById('reg_name').value,
+                email: document.getElementById('reg_email') ? document.getElementById('reg_email').value : '',
+                phone_number: document.getElementById('reg_phone').value,
+                aadhaar_number: document.getElementById('reg_aadhaar').value,
+                password: document.getElementById('reg_password').value,
+                profile_photo: regPhotoBase64,
+                id_proof: regIdProofBase64,
+                preferred_language: document.getElementById('reg_lang').value
+            };
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    btn.innerHTML = '<i class="fa-solid fa-user-check" style="margin-right: 8px;"></i> Submit Application';
+                    document.getElementById('register-form').reset();
+                    removeUploadedFile('reg_photo', 'photo_preview_wrap', 'photo_dropzone_prompt', 'photo-dropzone');
+                    removeUploadedFile('reg_id_proof', 'id_preview_wrap', 'idproof_dropzone_prompt', 'idproof-dropzone');
+                    closeAuthModal();
+
+                    const curLang = localStorage.getItem('siri_bank_lang') || 'English';
+                    const pendingMsg = (curLang === 'English')
+                        ? `Application Submitted Successfully!\nYour Customer ID is ${data.customer_id}.\nVerification email sent! Your account is awaiting Admin approval.`
+                        : `ನಿಮ್ಮ ನೋಂದಣಿಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ!\nನಿಮ್ಮ ಗ್ರಾಹಕ ಐಡಿ: ${data.customer_id}.\nದೃಢೀಕರಣ ಇಮೇಲ್ ಕಳುಹಿಸಲಾಗಿದೆ! ಬ್ಯಾಂಕ್ ನಿರ್ವಾಹಕರ ಅನುಮೋದನೆಗಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ.`;
+                    const pendingVoice = (curLang === 'English')
+                        ? "Your registration and verification documents have been submitted successfully and are awaiting administrator approval."
+                        : "ನಿಮ್ಮ ನೋಂದಣಿ ಮತ್ತು ದಾಖಲೆಗಳನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ. ಬ್ಯಾಂಕ್ ಮ್ಯಾನೇಜರ್ ಪರಿಶೀಲಿಸಿ ಅನುಮೋದಿಸುತ್ತಾರೆ.";
+                    showAccountStateModal('PENDING', pendingMsg);
+                    speakText(pendingVoice);
+                } else {
+                    showToast("Error: " + data.message);
+                    btn.innerHTML = '<i class="fa-solid fa-user-check" style="margin-right: 8px;"></i> Submit Application';
+                }
+            } catch (err) {
+                showToast("Network Error submitting registration.");
+                btn.innerHTML = '<i class="fa-solid fa-user-check" style="margin-right: 8px;"></i> Submit Application';
+            }
+        });
+
+        function showAccountStateModal(type, msg) {
+            const modal = document.getElementById('accountStateModal');
+            const content = document.getElementById('accountStateContent');
+            
+            if (type === 'PENDING') {
+                content.innerHTML = `
+                    <div style="width: 70px; height: 70px; border-radius: 50%; background: #fef3c7; color: #d97706; font-size: 2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <h3 style="margin: 0; color: #0f172a;">Application Pending Approval</h3>
+                    <p style="margin: 10px 0 1.5rem; color: #64748b; font-size: 0.95rem; line-height: 1.4;">
+                        ${msg.replace(/\n/g, '<br>')}
+                    </p>
+                    <div style="background: #eff6ff; padding: 12px; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.85rem; color: #1e40af; text-align: left;">
+                        <i class="fa-solid fa-shield-check" style="margin-right: 6px;"></i> The Bank Administrator is reviewing your KYC and details. Once approved, you can log in immediately.
+                    </div>
+                    <button class="btn-primary" onclick="closeAccountStateModal()" style="width: 100%;">Understood / ಸರಿ</button>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div style="width: 70px; height: 70px; border-radius: 50%; background: #fee2e2; color: #dc2626; font-size: 2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </div>
+                    <h3 style="margin: 0; color: #0f172a;">Application Rejected</h3>
+                    <p style="margin: 10px 0 1.5rem; color: #dc2626; font-size: 0.95rem; line-height: 1.4; font-weight: 600;">
+                        ${msg.replace(/\n/g, '<br>')}
+                    </p>
+                    <button class="btn-primary" onclick="closeAccountStateModal()" style="width: 100%;">Close</button>
+                `;
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeAccountStateModal() {
+            document.getElementById('accountStateModal').style.display = 'none';
+        }
+
+        function openStatusCheckerModal() {
+            closeAuthModal();
+            document.getElementById('statusModal').style.display = 'flex';
+            document.getElementById('status-checker-result').innerHTML = '';
+        }
+
+        function closeStatusModal() {
+            document.getElementById('statusModal').style.display = 'none';
+        }
+
+        async function checkApplicationStatus() {
+            const val = document.getElementById('status-checker-input').value.trim();
+            const resultDiv = document.getElementById('status-checker-result');
+            if (!val) {
+                resultDiv.innerHTML = '<span style="color: #ef4444;">Please enter your mobile or Aadhaar number.</span>';
+                return;
+            }
+            resultDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking status...';
+            try {
+                const res = await fetch(`/api/registration_status?identifier=${encodeURIComponent(val)}`);
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const d = data.data;
+                    let badge = '';
+                    if (d.status === 'PENDING') {
+                        badge = '<span style="background: #fef3c7; color: #d97706; padding: 4px 10px; border-radius: 20px; font-weight: 700;">PENDING APPROVAL</span>';
+                    } else if (d.status === 'ACTIVE') {
+                        badge = '<span style="background: #d1fae5; color: #059669; padding: 4px 10px; border-radius: 20px; font-weight: 700;">APPROVED & ACTIVE</span>';
+                    } else {
+                        badge = '<span style="background: #fee2e2; color: #dc2626; padding: 4px 10px; border-radius: 20px; font-weight: 700;">REJECTED</span>';
+                    }
+                    resultDiv.innerHTML = `
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                            <div style="margin-bottom: 6px;"><strong>Name:</strong> ${d.full_name}</div>
+                            <div style="margin-bottom: 6px;"><strong>Status:</strong> ${badge}</div>
+                            <div style="margin-bottom: 6px;"><strong>Customer ID:</strong> ${d.customer_id}</div>
+                            ${d.rejection_reason ? `<div style="color:#dc2626; margin-top: 6px;"><strong>Reason:</strong> ${d.rejection_reason}</div>` : ''}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<span style="color: #ef4444;">${data.message || 'No application found.'}</span>`;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = '<span style="color: #ef4444;">Network error querying status.</span>';
+            }
+        }
+
+
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3500);
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=3.7"></script>
+</body>
+
+</html>

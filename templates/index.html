@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - SIRI BANK AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Privacy mask */
+        .masked { filter: blur(8px); user-select: none; transition: filter 0.3s; }
+        .masked-text::before { content: attr(data-masked); }
+        .masked-text.masked { color: transparent; text-shadow: 0 0 12px rgba(255,255,255,0.9); }
+
+        .balance-toggle {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .balance-toggle:hover { background: rgba(255,255,255,0.25); }
+        .balance-amount-container {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .card-number-wrap {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .card-eye-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem;
+            transition: background 0.2s;
+        }
+        .card-eye-btn:hover { background: rgba(255,255,255,0.3); }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2 class="logo" style="margin-bottom: 4px;">SIRI<br>BANK</h2>
+            <div style="font-size: 0.68rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1.5rem; line-height: 1.3;">
+                <i class="fa-solid fa-wand-magic-sparkles" style="color: #6366f1; margin-right: 4px;"></i>AI Powered Smart Banking Assistant
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="/home" class="nav-item active"><i class="fa-solid fa-house"
+                        style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಮುಖಪುಟ{% else %}Home{% endif %}</span></a>
+                <a href="/pay" class="nav-item"><i class="fa-solid fa-paper-plane"
+                        style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಹಣ ವರ್ಗಾವಣೆ{% else %}Pay{% endif %}</span></a>
+                <a href="/atm-services" class="nav-item"><i class="fa-solid fa-credit-card"
+                        style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಎಟಿಎಂ ಸೇವೆಗಳು{% else %}ATM Services{% endif %}</span></a>
+                <a href="/aadhaar-kyc" class="nav-item"><i class="fa-solid fa-id-card"
+                        style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಆಧಾರ್ ಕೆವೈಸಿ{% else %}Aadhaar/KYC{% endif %}</span></a>
+                <a href="/request-history" class="nav-item"><i class="fa-solid fa-clock-rotate-left"
+                        style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ವಿನಂತಿ ಇತಿಹಾಸ{% else %}Request History{% endif %}</span></a>
+            </nav>
+
+
+            <a href="#" class="nav-item logout-btn" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"
+                    style="margin-right:8px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಲಾಗ್ ಔಟ್{% else %}Logout{% endif %}</span></a>
+        </aside>
+
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="user-greeting">
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <h3 style="margin: 0;">SIRI BANK <span style="color:var(--primary-color); margin-left: 10px;">{% if language == 'Kannada' %}ಮುಖಪುಟ{% else %}Home{% endif %}</span></h3>
+                        <span class="badge-ai-assistant" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(124, 58, 237, 0.12)); border: 1px solid rgba(99, 102, 241, 0.3); color: #4338ca; font-weight: 700; font-size: 0.8rem; padding: 4px 12px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color: #6366f1;"></i>
+                            AI Powered Smart Banking Assistant
+                        </span>
+                    </div>
+                </div>
+                <div class="top-controls">
+                    <select id="language-selector" class="language-selector" onchange="syncVoiceLanguage(this.value)">
+                        <option value="English" {% if language=='English' %}selected{% endif %}>English</option>
+                        <option value="Kannada" {% if language=='Kannada' %}selected{% endif %}>ಕನ್ನಡ (Kannada)</option>
+                    </select>
+                    <a href="/profile" class="topbar-profile-btn" title="My Profile">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Layout Grid -->
+            <div class="dashboard-layout">
+                <div class="modules-section">
+                    <!-- Premium Balance Section (Slider) -->
+                    <div class="card-slider-container" style="margin-bottom: 2rem; overflow: hidden; position: relative;">
+                        <div id="home-cards-wrapper" style="display: flex; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+                            <!-- Savings Balance -->
+                            <div class="slider-item" style="min-width: 100%;">
+                                <div class="premium-balance-card" style="background: linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%); width: 100%;">
+                                    <div class="bank-brand">SIRI SAVINGS</div>
+                                    <div class="balance-header">
+                                        <div class="balance-label">Total Balance</div>
+                                    </div>
+                                    <div class="balance-amount-container">
+                                        <div class="balance-amount masked" id="main-balance" data-balance="₹0.00">₹--</div>
+                                        <button class="balance-toggle" onclick="toggleBalanceVisibility()" title="Show/Hide Details">
+                                            <i class="fa-solid fa-eye-slash" id="balance-eye-icon"></i>
+                                        </button>
+                                    </div>
+                                    <p style="opacity: 0.9; font-size: 0.9rem; margin-top: 5px;" id="main-upi-id" class="masked">UPI ID: Loading...</p>
+                                    <p style="opacity: 0.7; font-size: 0.8rem;" id="main-account-number" class="masked">Acc: Loading...</p>
+                                </div>
+                            </div>
+
+                            <!-- Credit Balance / Not Eligible -->
+                            <div class="slider-item" style="min-width: 100%;">
+                                {% if has_credit_card %}
+                                <div class="premium-balance-card" style="background: linear-gradient(135deg, #111827 0%, #374151 100%); border: 1px solid #4b5563; width: 100%;">
+                                    <div class="bank-brand" style="color: #fbbf24;">SIRI PLATINUM CREDIT</div>
+                                    <div class="balance-header">
+                                        <div class="balance-label">Available Credit</div>
+                                    </div>
+                                    <div class="balance-amount-container">
+                                        <div class="balance-amount" style="color: #34d399;">₹4,82,450.00</div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px;">
+                                        <p style="opacity: 0.9; font-size: 0.9rem; margin: 0;">Total Limit: ₹5,00,000</p>
+                                        <p style="opacity: 0.7; font-size: 0.8rem; margin: 0;">Due: ₹17,550 (15th May)</p>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="premium-balance-card" style="background: #f1f5f9; border: 2px dashed #cbd5e1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #64748b; padding: 2rem;">
+                                    <i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                                    <h3 style="margin-bottom: 5px;">Credit Card Offer</h3>
+                                    <p style="font-size: 0.85rem;">Not eligible for credit card yet. Keep banking with us to unlock!</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Dots -->
+                        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 10px;">
+                            <div class="slider-dot active" onclick="slideHomeCards(0)"></div>
+                            <div class="slider-dot" onclick="slideHomeCards(1)"></div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function slideHomeCards(index) {
+                            const wrapper = document.getElementById('home-cards-wrapper');
+                            const dots = document.querySelectorAll('.slider-dot');
+                            wrapper.style.transform = `translateX(-${index * 100}%)`;
+                            dots.forEach(d => d.classList.remove('active'));
+                            dots[index].classList.add('active');
+                        }
+                    </script>
+
+                    <!-- Quick Actions Grid -->
+                    <div class="glass-card">
+                        <h3 class="section-title">Quick Actions</h3>
+                        <div class="quick-actions-grid">
+                            <div class="action-item" onclick="showSidebarAction('pay-phone')">
+                                <div class="action-icon" style="color: #3b82f6;"><i class="fa-solid fa-mobile-screen"></i></div>
+                                <div class="action-label">Pay Phone</div>
+                            </div>
+                            <div class="action-item" onclick="showSidebarAction('bank-transfer')">
+                                <div class="action-icon" style="color: #10b981;"><i class="fa-solid fa-building-columns"></i></div>
+                                <div class="action-label">Transfer</div>
+                            </div>
+                            <div class="action-item" onclick="showSidebarAction('upi-pay')">
+                                <div class="action-icon" style="color: #6366f1;"><i class="fa-solid fa-bolt"></i></div>
+                                <div class="action-label">UPI Pay</div>
+                            </div>
+                            <div class="action-item" onclick="showSidebarAction('card-settings')">
+                                <div class="action-icon" style="color: #64748b;"><i class="fa-solid fa-gear"></i></div>
+                                <div class="action-label">Settings</div>
+                            </div>
+
+                            <div class="action-item" onclick="showSidebarAction('card-offers')">
+                                <div class="action-icon" style="color: #ec4899;"><i class="fa-solid fa-tag"></i></div>
+                                <div class="action-label">Offers</div>
+                            </div>
+                            <div class="action-item" onclick="showSidebarAction('instant-loan')">
+                                <div class="action-icon" style="color: #8b5cf6;"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                                <div class="action-label">Loan</div>
+                            </div>
+                            <div class="action-item" onclick="showSidebarAction('add-money')">
+                                <div class="action-icon" style="color: #8b5cf6;"><i class="fa-solid fa-plus"></i></div>
+                                <div class="action-label">Add Money</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction Activity Section -->
+                    <div class="glass-card">
+                        <div class="history-tabs">
+                            <button class="tab-btn active" onclick="switchActivityTab('recent')">Recent Activity</button>
+                            <button class="tab-btn" onclick="switchActivityTab('upcoming')">Upcoming Activity</button>
+                        </div>
+                        <div id="recent-activity-list" class="activity-list">
+                            <div style="text-align:center; padding: 20px; color: #94a3b8;">Loading transactions...</div>
+                        </div>
+                        <div id="upcoming-activity-list" class="activity-list" style="display:none;">
+                            <div style="text-align:center; padding: 20px; color: #94a3b8;">No upcoming activities scheduled.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Card & Quick Transfer -->
+                <div class="sidebar-right" id="right-sidebar-panel">
+                    <!-- Default View Container -->
+                    <div id="default-sidebar-content">
+                        <!-- AI Powered Smart Banking Assistant Card -->
+                        <div class="glass-card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(147, 51, 234, 0.08) 100%); border: 1px solid rgba(99, 102, 241, 0.22); padding: 14px 16px; border-radius: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #4f46e5, #7c3aed); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.1rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 800; font-size: 0.9rem; color: #1e1b4b; display: flex; align-items: center; gap: 6px;">
+                                        AI Powered Smart Banking Assistant
+                                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+                                    </div>
+                                    <div style="font-size: 0.76rem; color: #64748b; margin-top: 3px;">
+                                        {% if language == 'Kannada' %}ಹೇಳಿ "ಹೇ ಸಿರಿ" ಅಥವಾ ಧ್ವನಿ ಮೂಲಕ ಬ್ಯಾಂಕಿಂಗ್ ಮಾಡಲು ಮೈಕ್ ಬಳಸಿ{% else %}Say "Hey Siri" or click mic for hands-free voice banking{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Virtual Debit Card -->
+                        <div class="virtual-card">
+                            <div class="card-type">VISA</div>
+                            <div class="card-chip"></div>
+                            <div class="card-number-wrap">
+                                <div class="card-number masked" id="virtual-card-number">4512 8900 1234 5678</div>
+                                <button class="card-eye-btn" onclick="toggleCardNumber()" title="Show/Hide Card Number">
+                                    <i class="fa-solid fa-eye-slash" id="card-eye-icon"></i>
+                                </button>
+                            </div>
+                            <div class="card-details">
+                                <div>
+                                    <div>Card Holder</div>
+                                    <div style="font-weight:600;">{{ user_name|upper }}</div>
+                                </div>
+                                <div>
+                                    <div>Valid Thru</div>
+                                    <div style="font-weight:600;">12/30</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Transfer Tool -->
+                        <div class="glass-card" style="margin-bottom: 2rem;">
+                            <h3>Quick Transfer</h3>
+                            <form class="transfer-form" id="quick-transfer-form" onsubmit="event.preventDefault(); executeQuickTransfer();">
+                                <div class="input-group">
+                                    <label style="font-size:0.85rem;">Payee Account Number</label>
+                                    <input type="text" id="transfer-acc" placeholder="e.g. ACC80001" required>
+                                </div>
+                                <div class="input-group">
+                                    <label style="font-size:0.85rem;">Amount (₹)</label>
+                                    <input type="number" id="transfer-amt" placeholder="0.00" min="1" step="0.01" required>
+                                </div>
+                                <div style="margin-bottom:1rem;">
+                                    <label style="font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+                                        <input type="checkbox" id="is-recurring" style="width:auto; zoom:1.2;"
+                                            onchange="document.getElementById('recur-day-group').style.display = this.checked ? 'block' : 'none';">
+                                        Set as Recurring Monthly
+                                    </label>
+                                </div>
+                                <div class="input-group" id="recur-day-group" style="display:none;">
+                                    <label style="font-size:0.85rem;">Execution Day (1-28)</label>
+                                    <input type="number" id="recur-day" min="1" max="28" value="1">
+                                </div>
+                                <button type="submit" class="btn-primary" style="padding:0.6rem;">Initialize Instruction</button>
+                            </form>
+                        </div>
+
+                        <!-- Credit Services (Loans) -->
+                        <div class="glass-card">
+                            <h3>Credit Services</h3>
+                            <form class="transfer-form" id="loan-form"
+                                onsubmit="event.preventDefault(); applyLoan();">
+                                <div class="input-group">
+                                    <label style="font-size:0.85rem;">Requested Loan Amount (₹)</label>
+                                    <input type="number" id="loan-amt" min="5000" step="1000" placeholder="Minimum ₹5,000" required>
+                                </div>
+                                <div class="input-group">
+                                    <label style="font-size:0.85rem;">Purpose of Loan</label>
+                                    <input type="text" id="loan-purpose" placeholder="e.g. Home Renovation" required>
+                                </div>
+                                <button type="submit" id="loan-submit-btn" class="btn-primary"
+                                    style="width:100%; background: #10b981; padding:0.6rem;">Apply for Loan</button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- Dynamic Action Area -->
+                    <div id="dynamic-action-content" style="display:none;">
+                        <button class="close-modal" onclick="resetSidebar()" style="margin-bottom: 1rem; width: 40px; height: 40px;"><i class="fa-solid fa-arrow-left"></i></button>
+                        
+                        <div id="sidebar-pay-phone" class="sidebar-tool" style="display:none;">
+                            <div class="glass-card">
+                                <h3>Pay Phone Number</h3>
+                                
+                                <div style="margin-bottom: 1.5rem;">
+                                    <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.025em; display: block; margin-bottom: 10px;">Recent Contacts</label>
+                                    <div id="sidebar-recent-payees" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none;">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+
+                                <form onsubmit="event.preventDefault(); executeSidebarPhoneTransfer();">
+                                    <div class="input-group">
+                                        <label id="lbl-side-pay-phone">Recipient Mobile Number</label>
+                                        <div style="position: relative;">
+                                            <input type="tel" id="side-pay-phone" placeholder="Enter 10-digit mobile number" maxlength="10" required oninput="lookupPayeeName(this.value)" style="padding-right: 36px;">
+                                            <span id="phone-lookup-spinner" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #0284c7;"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- PhonePe / Google Pay Style Verified Recipient Card -->
+                                    <div id="side-pay-recipient-card" style="display: none; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 12px; padding: 10px 14px; margin-top: -6px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.1);">
+                                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="width: 36px; height: 36px; border-radius: 50%; background: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 800; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);" id="recipient-avatar-initial">R</div>
+                                                <div>
+                                                    <div style="font-weight: 800; color: #065f46; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                                                        <span id="recipient-verified-name">Customer Name</span>
+                                                        <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 0.85rem;" title="Verified SIRI BANK Account"></i>
+                                                    </div>
+                                                    <div style="font-size: 0.75rem; color: #047857; font-weight: 600;" id="recipient-verified-acc">SIRI BANK • ACC80000</div>
+                                                </div>
+                                            </div>
+                                            <span style="background: #d1fae5; color: #047857; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.5px;">VERIFIED</span>
+                                        </div>
+                                    </div>
+
+                                    <div id="side-pay-recipient-error" style="display: none; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: 10px; padding: 8px 12px; margin-top: -6px; margin-bottom: 14px; font-size: 0.78rem; color: #b45309;">
+                                        <i class="fa-solid fa-triangle-exclamation" style="margin-right: 4px;"></i> <span id="recipient-error-text">No registered SIRI BANK user found with this mobile number.</span>
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label id="lbl-side-pay-amt">Amount to Send (₹)</label>
+                                        <input type="number" id="side-pay-amt" placeholder="0.00" min="1" step="0.01" required>
+                                    </div>
+                                    <button type="submit" id="side-confirm-pay" class="btn-primary">Confirm Payment</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Instant Loan Tool -->
+                        <div id="sidebar-instant-loan" class="sidebar-tool" style="display:none;">
+                            <div class="glass-card">
+                                <h3>Instant Loan Application</h3>
+                                <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem;">Fast approvals with minimal documentation.</p>
+                                <div class="input-group">
+                                    <label>Amount (₹)</label>
+                                    <input type="number" id="side-loan-amt" value="50000" min="10000" max="500000">
+                                </div>
+                                <div class="input-group">
+                                    <label>Employment Type</label>
+                                    <select id="side-loan-emp" style="width:100%; padding:0.8rem; border-radius:10px; border:1px solid #e2e8f0;">
+                                        <option value="Salaried">Salaried</option>
+                                        <option value="Self-Employed">Self-Employed</option>
+                                        <option value="Business Owner">Business Owner</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label>Monthly Income (₹)</label>
+                                    <input type="number" id="side-loan-income" placeholder="e.g. 45000" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Loan Tenure (Months)</label>
+                                    <select id="side-loan-tenure" style="width:100%; padding:0.8rem; border-radius:10px; border:1px solid #e2e8f0;">
+                                        <option value="12">12 Months</option>
+                                        <option value="24">24 Months</option>
+                                        <option value="36">36 Months</option>
+                                        <option value="48">48 Months</option>
+                                    </select>
+                                </div>
+                                <div style="background: #f0f9ff; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #bae6fd;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                                        <span>Interest Rate</span><span style="font-weight:700;">10.5% p.a.</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top:5px;">
+                                        <span>Processing Fee</span><span style="font-weight:700;">₹999</span>
+                                    </div>
+                                </div>
+                                <button class="btn-primary" onclick="applyInstantLoan()">Submit Application</button>
+                            </div>
+                        </div>
+
+
+
+                        <!-- Add Money Tool -->
+                        <div id="sidebar-add-money" class="sidebar-tool" style="display:none;">
+                            <div class="glass-card">
+                                <h3>Add Money</h3>
+                                <div class="input-group">
+                                    <label>Amount (₹)</label>
+                                    <input type="number" id="side-add-amt" placeholder="0.00">
+                                </div>
+                                <div class="input-group">
+                                    <label>Method</label>
+                                    <select style="width:100%; padding:0.8rem; border-radius:10px; border:1px solid #e2e8f0;">
+                                        <option>Saved Card (•••• 5678)</option>
+                                        <option>UPI App</option>
+                                    </select>
+                                </div>
+                                <button class="btn-primary" onclick="executeAddMoney()">Add Money</button>
+                            </div>
+                        </div>
+
+                        <!-- Bank Transfer Tool -->
+                        <div id="sidebar-bank-transfer" class="sidebar-tool" style="display:none;">
+                            <div class="glass-card">
+                                <h3>Bank Transfer</h3>
+                                <form onsubmit="event.preventDefault(); executeSidebarBankTransfer();">
+                                    <div class="input-group">
+                                        <label>Account Number</label>
+                                        <input type="text" id="side-bank-acc" placeholder="ACC8000x" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Amount (₹)</label>
+                                        <input type="number" id="side-bank-amt" placeholder="0.00" min="1" required>
+                                    </div>
+                                    <button type="submit" id="side-confirm-bank" class="btn-primary">Send Money</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- To UPI ID Tool -->
+                        <div id="sidebar-upi-pay" class="sidebar-tool" style="display:none;">
+                            <div class="glass-card">
+                                <h3>Pay to UPI ID</h3>
+                                <form onsubmit="event.preventDefault(); executeSidebarUPITransfer();">
+                                    <div class="input-group">
+                                        <label>UPI ID</label>
+                                        <input type="text" id="side-upi-id" placeholder="username@upi" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Amount (₹)</label>
+                                        <input type="number" id="side-upi-amt" placeholder="0.00" min="1" required>
+                                    </div>
+                                    <button type="submit" id="side-confirm-upi" class="btn-primary">Pay UPI ID</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Card Settings Tool -->
+                        <div id="sidebar-card-settings" class="sidebar-tool" style="display:none;">
+                            <div class="glass-card">
+                                <h3>Card Settings</h3>
+                                <div style="display:flex; flex-direction:column; gap:1rem; margin-top:1rem;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span>Online Usage</span>
+                                        <input type="checkbox" checked style="width:auto;">
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span>International Usage</span>
+                                        <input type="checkbox" style="width:auto;">
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span>Contactless (NFC)</span>
+                                        <input type="checkbox" checked style="width:auto;">
+                                    </div>
+                                </div>
+                                <button class="btn-primary" style="margin-top:1.5rem;" onclick="showToast('Settings Updated!'); resetSidebar();">Save Settings</button>
+                            </div>
+                        </div>
+
+
+
+
+                        <!-- Card Offers Tool -->
+                        <div id="sidebar-card-offers" class="sidebar-tool" style="display:none;">
+                            <div class="glass-card">
+                                <h3>Exclusive Offers</h3>
+                                <div style="display:flex; flex-direction:column; gap:12px; margin-top:1rem;">
+                                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:10px;">
+                                        <div style="font-weight:700; color:#166534;">10% OFF on Amazon</div>
+                                        <div style="font-size:0.8rem; color:#15803d;">Using SIRI Platinum Card</div>
+                                    </div>
+                                    <div style="background:#fff7ed; border:1px solid #fed7aa; padding:12px; border-radius:10px;">
+                                        <div style="font-weight:700; color:#9a3412;">₹500 Cashback on Fuel</div>
+                                        <div style="font-size:0.8rem; color:#c2410c;">Minimum ₹2000 spend</div>
+                                    </div>
+                                </div>
+                                <button class="btn-primary" style="margin-top:1.5rem; background:#64748b;" onclick="resetSidebar()">Close</button>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            </div>
+
+    </div>
+    </main>
+    </div>
+
+    <!-- Error Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Toast Notification -->
+    <div id="toast-msg" class="toast"></div>
+
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=3.6"></script>
+    <script>
+        // Balance & sensitive info visibility toggle
+        let detailsVisible = false;
+
+        function toggleBalanceVisibility() {
+            detailsVisible = !detailsVisible;
+            const icon = document.getElementById('balance-eye-icon');
+            const els = ['main-balance', 'main-upi-id', 'main-account-number'];
+            els.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.toggle('masked', !detailsVisible);
+            });
+            icon.className = detailsVisible ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+        }
+
+        // Virtual card number toggle
+        let cardVisible = false;
+        const REAL_CARD = '4512 8900 1234 5678';
+        const MASKED_CARD = '•••• •••• •••• 5678';
+
+        function toggleCardNumber() {
+            cardVisible = !cardVisible;
+            const el = document.getElementById('virtual-card-number');
+            const icon = document.getElementById('card-eye-icon');
+            el.textContent = cardVisible ? REAL_CARD : MASKED_CARD;
+            el.classList.toggle('masked', !cardVisible);
+            icon.className = cardVisible ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+        }
+
+        // Set masked card number on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const cn = document.getElementById('virtual-card-number');
+            if (cn) cn.textContent = MASKED_CARD;
+        });
+    </script>
+</body>
+
+</html>

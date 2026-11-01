@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aadhaar KYC - SIRI BANK AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <h2 class="logo" style="font-size: 1.5rem;">SIRI<br>BANK</h2>
+            <nav class="sidebar-nav">
+                <a href="/home" class="nav-item"><i class="fa-solid fa-house" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಮುಖಪುಟ{% else %}Home{% endif %}</span></a>
+                <a href="/pay" class="nav-item"><i class="fa-solid fa-paper-plane" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಹಣ ವರ್ಗಾವಣೆ{% else %}Pay{% endif %}</span></a>
+                <a href="/atm-services" class="nav-item"><i class="fa-solid fa-credit-card" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಎಟಿಎಂ ಸೇವೆಗಳು{% else %}ATM Services{% endif %}</span></a>
+                <a href="/aadhaar-kyc" class="nav-item active"><i class="fa-solid fa-id-card" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಆಧಾರ್ ಕೆವೈಸಿ{% else %}Aadhaar/KYC{% endif %}</span></a>
+                <a href="/request-history" class="nav-item"><i class="fa-solid fa-clock-rotate-left" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ವಿನಂತಿ ಇತಿಹಾಸ{% else %}Request History{% endif %}</span></a>
+            </nav>
+
+
+            <a href="#" class="nav-item logout-btn" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right:8px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಲಾಗ್ ಔಟ್{% else %}Logout{% endif %}</span></a>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="user-greeting">
+                    <h3>SIRI BANK <span style="color:var(--primary-color); margin-left: 10px;">{% if language == 'Kannada' %}ಆಧಾರ್ ಕೆವೈಸಿ{% else %}Aadhaar/KYC{% endif %}</span></h3>
+                </div>
+                <div class="top-controls">
+                    <select id="language-selector" class="language-selector" onchange="syncVoiceLanguage(this.value)">
+                        <option value="English" {% if language=='English' %}selected{% endif %}>English</option>
+                        <option value="Kannada" {% if language=='Kannada' %}selected{% endif %}>ಕನ್ನಡ (Kannada)</option>
+                    </select>
+                    <a href="/profile" class="topbar-profile-btn" title="My Profile">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </a>
+                </div>
+            </header>
+
+            <div class="dashboard-layout" style="display: block; max-width: 600px; margin: 0 auto;">
+                {% if kyc_status %}
+                <!-- Status View -->
+                <div class="glass-card" style="text-align: center; padding: 3rem 2rem;">
+                    {% if kyc_status == 'APPROVED' %}
+                    <div style="width: 80px; height: 80px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">
+                        <i class="fa-solid fa-badge-check"></i>
+                    </div>
+                    <h2 style="margin-bottom: 0.5rem;">KYC Verified</h2>
+                    <p style="color: #64748b; margin-bottom: 2rem;">Your account is fully verified. You have access to all premium features including high-limit transfers.</p>
+                    <button class="btn-primary" onclick="location.href='/home'">Back to Dashboard</button>
+                    
+                    {% elif kyc_status == 'PENDING' %}
+                    <div style="width: 80px; height: 80px; background: #fef3c7; color: #d97706; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <h2 style="margin-bottom: 0.5rem;">Verification Pending</h2>
+                    <p style="color: #64748b; margin-bottom: 2rem;">We are currently reviewing your documents. This usually takes 24-48 hours. We'll notify you once it's done.</p>
+                    <button class="btn-primary" onclick="location.href='/home'" style="background: #94a3b8; border: none;">Back to Dashboard</button>
+                    
+                    {% else %}
+                    <div style="width: 80px; height: 80px; background: #fee2e2; color: #dc2626; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </div>
+                    <h2 style="margin-bottom: 0.5rem;">Verification Rejected</h2>
+                    {% if rejection_reason %}
+                    <p style="color: #dc2626; font-weight: 600; margin-bottom: 1rem; padding: 0.5rem; background: #fee2e2; border-radius: 8px; font-size: 0.9rem;">Reason: {{ rejection_reason }}</p>
+                    {% endif %}
+                    <p style="color: #64748b; margin-bottom: 2rem;">Unfortunately, your verification was not successful. Please re-check your details and try again.</p>
+                    <button class="btn-primary" onclick="location.href='/aadhaar-kyc?retry=true'">Retry KYC</button>
+                    {% endif %}
+                </div>
+                {% else %}
+                <!-- KYC Progress Bar -->
+                <div class="kyc-progress" style="display: flex; justify-content: space-between; margin-bottom: 2rem; position: relative;">
+                    <div class="progress-line" id="progress-line" style="position: absolute; top: 15px; left: 0; height: 2px; background: #e2e8f0; width: 100%; z-index: 1;"></div>
+                    <div class="progress-line-active" id="progress-line-active" style="position: absolute; top: 15px; left: 0; height: 2px; background: var(--primary-color); width: 0%; z-index: 2; transition: width 0.4s ease;"></div>
+                    
+                    <div class="step active" id="step-dot-1" style="z-index: 3; text-align: center;">
+                        <div class="dot" style="width: 30px; height: 30px; background: white; border: 2px solid var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 700; font-size: 0.8rem; color: var(--primary-color); transition: all 0.3s;">1</div>
+                        <span style="font-size: 0.7rem; font-weight: 600; color: var(--primary-color);">Details</span>
+                    </div>
+                    <div class="step" id="step-dot-2" style="z-index: 3; text-align: center;">
+                        <div class="dot" style="width: 30px; height: 30px; background: white; border: 2px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 700; font-size: 0.8rem; color: #94a3b8; transition: all 0.3s;">2</div>
+                        <span style="font-size: 0.7rem; font-weight: 600; color: #94a3b8;">OTP</span>
+                    </div>
+                    <div class="step" id="step-dot-3" style="z-index: 3; text-align: center;">
+                        <div class="dot" style="width: 30px; height: 30px; background: white; border: 2px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 700; font-size: 0.8rem; color: #94a3b8; transition: all 0.3s;">3</div>
+                        <span style="font-size: 0.7rem; font-weight: 600; color: #94a3b8;">Face</span>
+                    </div>
+                    <div class="step" id="step-dot-4" style="z-index: 3; text-align: center;">
+                        <div class="dot" style="width: 30px; height: 30px; background: white; border: 2px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 700; font-size: 0.8rem; color: #94a3b8; transition: all 0.3s;"><i class="fa-solid fa-check"></i></div>
+                        <span style="font-size: 0.7rem; font-weight: 600; color: #94a3b8;">Done</span>
+                    </div>
+                </div>
+
+                <!-- Step 1: Aadhaar Entry -->
+                <div id="kyc-step-1" class="glass-card kyc-card">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <div style="width: 60px; height: 60px; background: #eef2ff; color: #4f46e5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem;">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <h3>Identity Verification</h3>
+                        <p style="font-size: 0.9rem; color: #64748b;">Enter your 12-digit Aadhaar number to begin.</p>
+                        <div style="margin-top: 10px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                            <button type="button" class="btn-voice-fill" onclick="triggerVoiceAssistant('Say your full name, date of birth, and Aadhaar number, for example: My name is Arpitha, date of birth 15th August 1998, Aadhaar 123456789001')">
+                                <i class="fa-solid fa-microphone"></i> <span>Fill Details by Voice</span>
+                            </button>
+                            <button type="button" class="btn-voice-fill" style="background: #eef2ff; color: var(--primary-color); border: 1px solid #c7d2fe;" onclick="triggerVoiceAssistant('Simulate Aadhaar KYC for me with OTP')">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Simulate All by AI</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <form onsubmit="requestOTP(event);">
+                        <div class="input-group">
+                            <label>Full Legal Name (as per Aadhaar)</label>
+                            <input type="text" id="kyc-full-name" placeholder="Enter full name" required 
+                                   style="width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 1rem;">
+                        </div>
+                        <div class="input-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="kyc-dob" required 
+                                   style="width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 1rem;">
+                        </div>
+                        <div class="input-group">
+                            <label>Aadhaar Number</label>
+                            <div style="position: relative;">
+                                <input type="text" id="kyc-aadhaar-num" placeholder="XXXX XXXX XXXX" maxlength="14" required 
+                                       style="width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 1.1rem; letter-spacing: 2px;">
+                                <i class="fa-solid fa-shield-check" style="position: absolute; right: 15px; top: 15px; color: #10b981;"></i>
+                            </div>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                            <label style="display: flex; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" required style="width: auto; margin-top: 4px;">
+                                <span style="font-size: 0.8rem; color: #64748b; line-height: 1.4;">I hereby give my consent to SIRI BANK to fetch my e-KYC details from UIDAI for verification purposes.</span>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width: 100%; padding: 12px;">Get OTP</button>
+                    </form>
+                </div>
+
+                <!-- Step 2: OTP Entry -->
+                <div id="kyc-step-2" class="glass-card kyc-card" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <div style="width: 60px; height: 60px; background: #fef3c7; color: #d97706; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem;">
+                            <i class="fa-solid fa-message-dots"></i>
+                        </div>
+                        <h3>Verify Mobile Number</h3>
+                        <p style="font-size: 0.9rem; color: #64748b;">An OTP has been sent to your Aadhaar-linked mobile (XXXXXX5678).</p>
+                    </div>
+                    
+                    <form onsubmit="verifyOTP(event);">
+                        <div class="input-group">
+                            <label>6-Digit OTP</label>
+                            <input type="text" id="kyc-otp-input" placeholder="0 0 0 0 0 0" maxlength="6" required 
+                                   style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; font-size: 1.5rem; letter-spacing: 15px;">
+                        </div>
+                        <p style="text-align: center; font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.5rem;">Didn't receive? <a href="#" style="color: var(--primary-color); font-weight: 600;">Resend in 30s</a></p>
+                        <button type="submit" class="btn-primary" style="width: 100%; padding: 12px;">Verify OTP</button>
+                    </form>
+                </div>
+
+                <!-- Step 3: Face Verification -->
+                <div id="kyc-step-3" class="glass-card kyc-card" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <div style="width: 60px; height: 60px; background: #f0fdf4; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem;">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                        <h3>Face Liveness Check</h3>
+                        <p style="font-size: 0.9rem; color: #64748b;">Position your face in the center and follow the instructions.</p>
+                    </div>
+                    
+                    <div style="width: 200px; height: 200px; border-radius: 50%; border: 4px dashed var(--primary-color); margin: 0 auto 2rem; position: relative; overflow: hidden; background: #f8fafc;">
+                        <div id="face-loader" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(79, 70, 229, 0.1); display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-user" style="font-size: 5rem; color: #e2e8f0;"></i>
+                        </div>
+                        <div id="scanning-line" style="position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--primary-color); box-shadow: 0 0 10px var(--primary-color); animation: scanLine 2s infinite alternate; display: none;"></div>
+                    </div>
+                    
+                    <div id="face-instructions" style="text-align: center; margin-bottom: 1.5rem; font-weight: 600; color: var(--primary-color);">
+                        Ready to Start?
+                    </div>
+                    
+                    <button id="start-scan-btn" class="btn-primary" style="width: 100%; padding: 12px;" onclick="startFaceScan()">Start Liveness Check</button>
+                </div>
+
+                <!-- Step 4: Success -->
+                <div id="kyc-step-4" class="glass-card kyc-card" style="display: none; text-align: center;">
+                    <div style="width: 80px; height: 80px; background: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem; animation: successPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <h2 style="margin-bottom: 0.5rem;">KYC Completed!</h2>
+                    <p style="color: #64748b; margin-bottom: 2rem;">Your documents have been submitted and are pending approval. Your account will be updated shortly.</p>
+                    <button class="btn-primary" style="width: 100%;" onclick="location.href='/home'">Go to Dashboard</button>
+                </div>
+                {% endif %}
+            </div>
+
+            <style>
+                @keyframes scanLine {
+                    from { top: 0; }
+                    to { top: 100%; }
+                }
+                @keyframes successPop {
+                    0% { transform: scale(0.5); opacity: 0; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+                .kyc-card {
+                    animation: cardSlideIn 0.4s ease-out;
+                }
+                @keyframes cardSlideIn {
+                    from { transform: translateY(20px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+            </style>
+
+            <script>
+                function requestOTP(event) {
+                    event.preventDefault();
+                    fetch('/api/user/kyc/generate-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast("Aadhaar OTP sent successfully to linked mobile!");
+                            const otpInput = document.getElementById('kyc-otp-input');
+                            if (otpInput && data.otp) otpInput.value = data.otp;
+                            nextKYCStep(1);
+                        } else {
+                            showToast(data.message || 'Failed to generate OTP');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showToast('Error requesting OTP');
+                    });
+                }
+
+                function verifyOTP(event) {
+                    event.preventDefault();
+                    const enteredOtp = document.getElementById('kyc-otp-input').value;
+                    fetch('/api/user/kyc/verify-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ otp: enteredOtp })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('OTP verified successfully!');
+                            nextKYCStep(2);
+                        } else {
+                            showToast(data.message || 'Invalid OTP code entered');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showToast('Error verifying OTP');
+                    });
+                }
+
+                function nextKYCStep(current) {
+                    document.getElementById(`kyc-step-${current}`).style.display = 'none';
+                    document.getElementById(`kyc-step-${current + 1}`).style.display = 'block';
+                    
+                    // Update Progress
+                    const progress = (current) * 33.33;
+                    document.getElementById('progress-line-active').style.width = `${progress}%`;
+                    
+                    const nextDot = document.getElementById(`step-dot-${current + 1}`);
+                    nextDot.classList.add('active');
+                    const dotIcon = nextDot.querySelector('.dot');
+                    dotIcon.style.background = 'var(--primary-color)';
+                    dotIcon.style.color = 'white';
+                    nextDot.querySelector('span').style.color = 'var(--primary-color)';
+
+                    // Automatically start Face Liveness Check when entering Step 3
+                    if (current + 1 === 3) {
+                        setTimeout(() => {
+                            if (typeof startFaceScan === 'function') startFaceScan();
+                        }, 1200);
+                    }
+                }
+
+                function startFaceScan() {
+                    const btn = document.getElementById('start-scan-btn');
+                    const line = document.getElementById('scanning-line');
+                    const instr = document.getElementById('face-instructions');
+                    
+                    btn.disabled = true;
+                    btn.innerText = 'Scanning...';
+                    line.style.display = 'block';
+                    instr.innerText = 'Blink your eyes...';
+                    
+                    setTimeout(() => {
+                        instr.innerText = 'Turn your head left...';
+                    }, 2000);
+                    
+                    setTimeout(() => {
+                        instr.innerText = 'Almost done...';
+                    }, 4000);
+
+                    setTimeout(() => {
+                        const name = (document.getElementById('kyc-full-name').value || '').trim();
+                        const dob = (document.getElementById('kyc-dob').value || '').trim();
+                        const aadhaar = (document.getElementById('kyc-aadhaar-num').value || '').replace(/\s+/g, '');
+
+                        // Submit to backend
+                        fetch('/api/user/kyc/submit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                request_type: 'AADHAAR_LINK',
+                                aadhaar_number: aadhaar,
+                                details: `KYC Verified: ${name} | DOB: ${dob} | Aadhaar: ${aadhaar}`
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                nextKYCStep(3);
+                                showToast('KYC Submitted Successfully!');
+                                
+                                const curLang = (typeof getVoiceLanguage === 'function' ? getVoiceLanguage() : (localStorage.getItem('siri_bank_lang') || 'English'));
+                                const isKn = (curLang === 'Kannada');
+                                const completedMsg = isKn
+                                    ? "ಮುಖದ ಲೈವ್‌ನೆಸ್ ಸ್ಕ್ಯಾನ್ ಯಶಸ್ವಿಯಾಗಿ ಪೂರ್ಣಗೊಂಡಿದೆ! ನಿಮ್ಮ ಆಧಾರ್ ಇ-ಕೆವೈಸಿ ಅರ್ಜಿಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ ಮತ್ತು ಪರಿಶೀಲನೆಯಲ್ಲಿದೆ."
+                                    : "Face liveness scan completed successfully! Your Aadhaar e-KYC application has been submitted and is pending verification.";
+                                
+                                if (typeof speakText === 'function') {
+                                    speakText(completedMsg);
+                                }
+                                if (typeof appendMessage === 'function') {
+                                    appendMessage(completedMsg, 'bot');
+                                }
+                            } else {
+                                showToast('Failed to submit KYC. Please try again.');
+                                btn.disabled = false;
+                                btn.innerText = 'Retry Scan';
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            showToast('Connection error. Please try again.');
+                            btn.disabled = false;
+                            btn.innerText = 'Retry Scan';
+                        });
+                    }, 6000);
+                }
+            </script>
+        </main>
+    </div>
+    <div id="toast" class="toast"></div>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=2.9"></script>
+</body>
+</html>

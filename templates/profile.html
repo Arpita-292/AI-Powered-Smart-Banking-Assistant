@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - SIRI BANK AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+
+        /* ── Layout ── */
+        .profile-scroll-area {
+            overflow-y: auto;
+            height: calc(100vh - 70px);
+            background: #f8fafc;
+            padding-bottom: 90px; /* space for bottom nav */
+        }
+
+        /* ── Hero ── */
+        .profile-hero {
+            background: linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%);
+            padding: 2.5rem 2rem 3.5rem;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            top: -80px; right: -80px;
+            width: 250px; height: 250px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+        }
+        .profile-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; left: -40px;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+        }
+        .hero-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.18);
+            border: 3px solid rgba(255,255,255,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            margin: 0 auto 1rem;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -1px;
+        }
+        .hero-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            margin: 0 0 0.3rem;
+            position: relative; z-index: 1;
+        }
+        .hero-upi {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.65);
+            font-weight: 500;
+            position: relative; z-index: 1;
+            word-break: break-all;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16,185,129,0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16,185,129,0.3);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            margin-top: 0.9rem;
+            letter-spacing: 0.5px;
+            position: relative; z-index: 1;
+        }
+        .status-dot {
+            width: 7px; height: 7px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+
+        /* ── Floating card overlapping hero ── */
+        .profile-content {
+            padding: 0 1rem;
+            position: relative;
+            margin-top: -1.5rem;
+            z-index: 2;
+        }
+
+        /* ── Stat chips row ── */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .stat-chip {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem 0.75rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border: 1px solid #f1f5f9;
+            transition: transform 0.15s ease;
+        }
+        .stat-chip:active { transform: scale(0.97); }
+        .stat-chip-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #eef2ff;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            margin: 0 auto 0.6rem;
+        }
+        .stat-chip-value {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.2;
+            word-break: break-all;
+        }
+        .stat-chip-value.balance { color: #4f46e5; font-size: 1rem; }
+        .stat-chip-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+        }
+
+        /* ── Info card ── */
+        .info-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.25rem 1.25rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+            margin-bottom: 1rem;
+        }
+        .info-card-title {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #cbd5e1;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .info-card-title i { color: #a5b4fc; }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f8fafc;
+            gap: 0.5rem;
+        }
+        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .info-key {
+            font-size: 0.82rem;
+            color: #64748b;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-shrink: 0;
+        }
+        .info-key i { color: #c7d2fe; width: 13px; font-size: 0.75rem; }
+        .info-val-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+        }
+        .info-val {
+            font-size: 0.82rem;
+            color: #0f172a;
+            font-weight: 700;
+            text-align: right;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 160px;
+        }
+        .info-val.green { color: #059669; }
+        .copy-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            transition: all 0.15s;
+        }
+        .copy-btn:active { background: #e0e7ff; color: #4f46e5; transform: scale(0.92); }
+
+        /* ── Action buttons ── */
+        .profile-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .btn-action {
+            padding: 0.9rem 1rem;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: all 0.2s ease;
+        }
+        .btn-action-primary {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 6px 16px rgba(79,70,229,0.28);
+        }
+        .btn-action-primary:active { background: #4338ca; transform: scale(0.97); }
+        .btn-action-danger {
+            background: #fff1f2;
+            color: #e11d48;
+            border: 1px solid #fecdd3;
+        }
+        .btn-action-danger:active { background: #ffe4e6; transform: scale(0.97); }
+
+        /* ── Skeleton ── */
+        .skeleton {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+            height: 1em;
+            display: inline-block;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* ── Page fade ── */
+        .profile-scroll-area { animation: pageIn 0.35s ease-out; }
+        @keyframes pageIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Desktop overrides ── */
+        @media (min-width: 769px) {
+            .profile-scroll-area {
+                padding-bottom: 2rem;
+            }
+            .profile-hero {
+                padding: 3rem 3rem 4rem;
+                text-align: left;
+            }
+            .hero-avatar { margin: 0 0 1rem; }
+            .hero-name { font-size: 2rem; }
+            .hero-upi { font-size: 0.95rem; }
+            .profile-content {
+                max-width: 900px;
+                margin: -1.5rem auto 0;
+                padding: 0 2rem;
+            }
+            .stat-row {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.25rem;
+            }
+            .stat-chip { padding: 1.5rem; }
+            .stat-chip-value { font-size: 1.25rem; }
+            .stat-chip-value.balance { font-size: 1.5rem; }
+            .stat-chip-label { font-size: 0.72rem; }
+            .info-card { padding: 1.5rem; }
+            .info-val { max-width: 250px; font-size: 0.9rem; }
+            .info-key { font-size: 0.9rem; }
+            .profile-actions { gap: 1rem; }
+            .btn-action { padding: 1rem 1.5rem; font-size: 0.9rem; }
+        }
+
+        /* ── Very small phones ── */
+        @media (max-width: 380px) {
+            .stat-row { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+            .stat-chip { padding: 0.75rem 0.4rem; }
+            .stat-chip-value { font-size: 0.78rem; }
+            .stat-chip-value.balance { font-size: 0.82rem; }
+            .stat-chip-label { font-size: 0.58rem; }
+            .stat-chip-icon { width: 30px; height: 30px; font-size: 0.78rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2 class="logo">SIRI<br>BANK</h2>
+            <nav class="sidebar-nav">
+                <a href="/home" class="nav-item"><i class="fa-solid fa-house" style="margin-right:8px;width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಮುಖಪುಟ{% else %}Home{% endif %}</span></a>
+                <a href="/pay" class="nav-item"><i class="fa-solid fa-paper-plane" style="margin-right:8px;width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಹಣ ವರ್ಗಾವಣೆ{% else %}Pay{% endif %}</span></a>
+                <a href="/atm-services" class="nav-item"><i class="fa-solid fa-credit-card" style="margin-right:8px;width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಎಟಿಎಂ ಸೇವೆಗಳು{% else %}ATM Services{% endif %}</span></a>
+                <a href="/aadhaar-kyc" class="nav-item"><i class="fa-solid fa-id-card" style="margin-right:8px;width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಆಧಾರ್ ಕೆವೈಸಿ{% else %}Aadhaar/KYC{% endif %}</span></a>
+                <a href="/request-history" class="nav-item"><i class="fa-solid fa-clock-rotate-left" style="margin-right:8px;width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ವಿನಂತಿ ಇತಿಹಾಸ{% else %}Request History{% endif %}</span></a>
+            </nav>
+            <a href="#" class="nav-item logout-btn" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right:8px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಲಾಗ್ ಔಟ್{% else %}Logout{% endif %}</span></a>
+        </aside>
+
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="user-greeting">
+                    <h3>SIRI BANK <span style="color:var(--primary-color); margin-left: 10px;">{% if language == 'Kannada' %}ಪ್ರೊಫೈಲ್{% else %}Profile{% endif %}</span></h3>
+                </div>
+                <div class="top-controls">
+                    <a href="/home" class="topbar-profile-btn" title="Back to Home" style="font-size:1.1rem;">
+                        <i class="fa-solid fa-house"></i>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Scrollable profile content -->
+            <div class="profile-scroll-area">
+                <!-- Hero -->
+                <div class="profile-hero">
+                    <div class="hero-avatar" id="hero-avatar">{{ user_name[0]|upper }}</div>
+                    <h1 class="hero-name" id="hero-name">{{ user_name }}</h1>
+                    <p class="hero-upi" id="hero-upi">{% if language == 'Kannada' %}ಯುಪಿಐ ಐಡಿ ಪಡೆಯಲಾಗುತ್ತಿದೆ...{% else %}Fetching UPI ID...{% endif %}</p>
+                    <div class="hero-badge"><span class="status-dot"></span> {% if language == 'Kannada' %}ದೃಢೀಕರಿಸಿದ ಖಾತೆ{% else %}VERIFIED ACCOUNT{% endif %}</div>
+                </div>
+
+                <!-- Main content floated over hero -->
+                <div class="profile-content">
+
+                    <!-- Stat chips -->
+                    <div class="stat-row">
+                        <div class="stat-chip">
+                            <div class="stat-chip-icon"><i class="fa-solid fa-wallet"></i></div>
+                            <div class="stat-chip-value balance" id="stat-balance">
+                                <span class="skeleton" style="width:60px;">&nbsp;</span>
+                            </div>
+                            <div class="stat-chip-label">{% if language == 'Kannada' %}ಖಾತೆ ಬ್ಯಾಲೆನ್ಸ್{% else %}Balance{% endif %}</div>
+                        </div>
+                        <div class="stat-chip">
+                            <div class="stat-chip-icon" style="background:#f0fdf4; color:#10b981;"><i class="fa-solid fa-fingerprint"></i></div>
+                            <div class="stat-chip-value" id="stat-custid">
+                                <span class="skeleton" style="width:55px;">&nbsp;</span>
+                            </div>
+                            <div class="stat-chip-label">{% if language == 'Kannada' %}ಗ್ರಾಹಕ ಐಡಿ{% else %}Cust. ID{% endif %}</div>
+                        </div>
+                        <div class="stat-chip">
+                            <div class="stat-chip-icon" style="background:#fef3c7; color:#d97706;"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div class="stat-chip-value" id="stat-status">
+                                <span class="skeleton" style="width:45px;">&nbsp;</span>
+                            </div>
+                            <div class="stat-chip-label">{% if language == 'Kannada' %}ಖಾತೆ ಸ್ಥಿತಿ{% else %}Status{% endif %}</div>
+                        </div>
+                    </div>
+
+                    <!-- Account info card -->
+                    <div class="info-card">
+                        <div class="info-card-title"><i class="fa-solid fa-building-columns"></i> {% if language == 'Kannada' %}ಖಾತೆಯ ಮಾಹಿತಿ{% else %}Account Information{% endif %}</div>
+                        <div class="info-row">
+                            <span class="info-key"><i class="fa-solid fa-hashtag"></i> {% if language == 'Kannada' %}ಖಾತೆ ಸಂಖ್ಯೆ{% else %}Account No.{% endif %}</span>
+                            <div class="info-val-wrap">
+                                <span class="info-val" id="detail-acc"><span class="skeleton" style="width:80px;">&nbsp;</span></span>
+                                <button class="copy-btn" onclick="copyField('detail-acc')" title="Copy"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-key"><i class="fa-solid fa-at"></i> {% if language == 'Kannada' %}ಯುಪಿಐ ಐಡಿ{% else %}UPI ID{% endif %}</span>
+                            <div class="info-val-wrap">
+                                <span class="info-val" id="detail-upi"><span class="skeleton" style="width:90px;">&nbsp;</span></span>
+                                <button class="copy-btn" onclick="copyField('detail-upi')" title="Copy"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-key"><i class="fa-solid fa-landmark"></i> {% if language == 'Kannada' %}IFSC ಕೋಡ್{% else %}IFSC{% endif %}</span>
+                            <div class="info-val-wrap">
+                                <span class="info-val" id="detail-ifsc">SIRI0004829</span>
+                                <button class="copy-btn" onclick="copyField('detail-ifsc')" title="Copy"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Branch & Security card -->
+                    <div class="info-card">
+                        <div class="info-card-title"><i class="fa-solid fa-shield-check"></i> {% if language == 'Kannada' %}ಶಾಖೆ ಮತ್ತು ಭದ್ರತೆ{% else %}Branch &amp; Security{% endif %}</div>
+                        <div class="info-row">
+                            <span class="info-key"><i class="fa-solid fa-location-dot"></i> {% if language == 'Kannada' %}ಶಾಖೆ{% else %}Branch{% endif %}</span>
+                            <div class="info-val-wrap">
+                                <span class="info-val">{% if language == 'Kannada' %}ಸಿರಿ ಮುಖ್ಯ ಶಾಖೆ{% else %}SIRI HQ – Main{% endif %}</span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-key"><i class="fa-solid fa-globe"></i> {% if language == 'Kannada' %}ನೆಟ್‌ವರ್ಕ್{% else %}Network{% endif %}</span>
+                            <div class="info-val-wrap">
+                                <span class="info-val">{% if language == 'Kannada' %}ಸಿರಿ AI ಬ್ಯಾಂಕಿಂಗ್{% else %}SIRI AI Banking{% endif %}</span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-key"><i class="fa-solid fa-lock"></i> {% if language == 'Kannada' %}ಭದ್ರತೆ{% else %}Security{% endif %}</span>
+                            <div class="info-val-wrap">
+                                <span class="info-val green">{% if language == 'Kannada' %}ಸಂಪೂರ್ಣ ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡಲಾಗಿದೆ{% else %}E2E Encrypted{% endif %}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="profile-actions">
+                        <button class="btn-action btn-action-primary" onclick="location.href='/aadhaar-kyc'">
+                            <i class="fa-solid fa-id-card"></i> {% if language == 'Kannada' %}ಕೆವೈಸಿ ನವೀಕರಿಸಿ{% else %}Update KYC{% endif %}
+                        </button>
+                        <button class="btn-action btn-action-danger" onclick="logout()">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> {% if language == 'Kannada' %}ಖಾತೆಯಿಂದ ಲಾಗ್ ಔಟ್ ಮಾಡಿ{% else %}Sign Out{% endif %}
+                        </button>
+                    </div>
+
+                </div><!-- /profile-content -->
+            </div><!-- /profile-scroll-area -->
+        </main>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=2.1"></script>
+    <script>
+        function copyField(id) {
+            const el = document.getElementById(id);
+            const text = el.innerText.trim();
+            if (!text || text === '\u00a0') return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied: ' + text);
+            }).catch(() => {
+                showToast('Copy failed');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!currentUserData) {
+                await loadUserSummary();
+            }
+
+            if (currentUserData && currentUserData.user) {
+                const u = currentUserData.user;
+                const acc = (currentUserData.accounts && currentUserData.accounts.length > 0)
+                    ? currentUserData.accounts[0] : {};
+
+                const initial = (u.full_name || '?')[0].toUpperCase();
+                const upiText = u.upi_id ? u.upi_id + '@siribank' : (u.customer_id || '').toLowerCase() + '@siribank';
+                const balance = '₹' + parseFloat(acc.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                const status = acc.status || 'ACTIVE';
+
+                if (u.profile_photo) {
+                    document.getElementById('hero-avatar').innerHTML = `<img src="${u.profile_photo}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                    document.getElementById('hero-avatar').style.padding = '0';
+                    document.getElementById('hero-avatar').style.overflow = 'hidden';
+                } else {
+                    document.getElementById('hero-avatar').innerText = initial;
+                }
+                document.getElementById('hero-name').innerText = u.full_name || '{{ user_name }}';
+                document.getElementById('hero-upi').innerText = upiText;
+
+                document.getElementById('stat-balance').innerText = balance;
+                document.getElementById('stat-custid').innerText = u.customer_id || 'N/A';
+
+                const statusEl = document.getElementById('stat-status');
+                const isActive = status === 'ACTIVE' || status === 'APPROVED';
+                statusEl.innerHTML = isActive
+                    ? '<span style="color:#059669;font-size:0.8rem;">● ' + status + '</span>'
+                    : status;
+
+                document.getElementById('detail-acc').innerText = acc.account_number || 'N/A';
+                document.getElementById('detail-upi').innerText = upiText;
+            }
+        });
+    </script>
+</body>
+</html>

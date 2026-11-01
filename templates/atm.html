@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM Services - SIRI BANK AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ── Premium Segment Control ── */
+        .seg-wrap {
+            background: #eef2ff;
+            border-radius: 16px;
+            padding: 5px;
+            margin-bottom: 1.75rem;
+        }
+        .segmented-control {
+            display: flex; position: relative;
+            height: 48px; border-radius: 12px;
+            background: transparent; overflow: hidden;
+        }
+        #segment-bg {
+            position: absolute; width: 50%; height: 100%;
+            background: white; border-radius: 10px;
+            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 4px 16px rgba(79,70,229,0.15);
+            z-index: 1;
+        }
+        .segment-btn {
+            flex: 1; z-index: 2; border: none;
+            background: transparent; font-weight: 700;
+            font-size: 0.95rem; cursor: pointer;
+            transition: color 0.3s; font-family: inherit;
+        }
+
+        /* ── Card Visual Glow ── */
+        .premium-balance-card {
+            border-radius: 24px !important;
+            padding: 2rem !important;
+            position: relative;
+            overflow: hidden;
+        }
+        .premium-balance-card::after {
+            content: '';
+            position: absolute;
+            top: -40%; right: -20%;
+            width: 260px; height: 260px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .card-number-display {
+            letter-spacing: 4px !important;
+            font-size: 1.5rem !important;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ── Action Row — premium style ── */
+        .action-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.1rem;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+            margin-bottom: 0.75rem;
+        }
+        .action-row:last-child { margin-bottom: 0; }
+        .action-row:hover {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+            transform: translateX(4px);
+            box-shadow: 0 4px 16px rgba(79,70,229,0.08);
+        }
+        .action-row-info {
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .action-row-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
+        }
+        .pay-label { font-weight: 700; color: #0f172a; font-size: 0.92rem; }
+
+        /* ── Section header ── */
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 1.1rem;
+        }
+
+        /* ── Glass card tweak ── */
+        .glass-card { border-radius: 20px !important; }
+
+        /* ── Right sidebar card ── */
+        .atm-sidebar-dark {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 20px;
+            padding: 1.75rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .atm-sidebar-dark::before {
+            content: '';
+            position: absolute;
+            top: -30px; right: -30px;
+            width: 120px; height: 120px;
+            background: rgba(56,189,248,0.1);
+            border-radius: 50%;
+        }
+        .atm-sidebar-dark h3 { color: white; margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .atm-sidebar-dark p  { color: #94a3b8; font-size: 0.85rem; margin: 0 0 1.25rem; }
+
+        .atm-apply-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+            border: none; border-radius: 12px;
+            color: #0f172a; font-weight: 800;
+            font-size: 0.95rem; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+        .atm-apply-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(14,165,233,0.35);
+        }
+
+        /* Security tip rows */
+        .sec-tip {
+            display: flex; gap: 0.75rem; align-items: flex-start;
+            font-size: 0.84rem; color: #64748b; line-height: 1.5;
+            margin-bottom: 1rem; padding-bottom: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .sec-tip:last-child { margin-bottom: 0; padding-bottom: 0; border: none; }
+        .sec-tip i { margin-top: 2px; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <h2 class="logo" style="font-size: 1.5rem;">SIRI<br>BANK</h2>
+            
+            <nav class="sidebar-nav">
+                <a href="/home" class="nav-item"><i class="fa-solid fa-house" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಮುಖಪುಟ{% else %}Home{% endif %}</span></a>
+                <a href="/pay" class="nav-item"><i class="fa-solid fa-paper-plane" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಹಣ ವರ್ಗಾವಣೆ{% else %}Pay{% endif %}</span></a>
+                <a href="/atm-services" class="nav-item active"><i class="fa-solid fa-credit-card" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಎಟಿಎಂ ಸೇವೆಗಳು{% else %}ATM Services{% endif %}</span></a>
+                <a href="/aadhaar-kyc" class="nav-item"><i class="fa-solid fa-id-card" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಆಧಾರ್ ಕೆವೈಸಿ{% else %}Aadhaar/KYC{% endif %}</span></a>
+                <a href="/request-history" class="nav-item"><i class="fa-solid fa-clock-rotate-left" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ವಿನಂತಿ ಇತಿಹಾಸ{% else %}Request History{% endif %}</span></a>
+            </nav>
+
+
+            <a href="#" class="nav-item logout-btn" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right:8px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಲಾಗ್ ಔಟ್{% else %}Logout{% endif %}</span></a>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="user-greeting">
+                    <h3>SIRI BANK <span style="color:var(--primary-color); margin-left: 10px;">{% if language == 'Kannada' %}ಎಟಿಎಂ ಸೇವೆಗಳು{% else %}ATM Services{% endif %}</span></h3>
+                </div>
+                <div class="top-controls">
+                    <select id="language-selector" class="language-selector" onchange="syncVoiceLanguage(this.value)">
+                        <option value="English" {% if language=='English' %}selected{% endif %}>English</option>
+                        <option value="Kannada" {% if language=='Kannada' %}selected{% endif %}>ಕನ್ನಡ (Kannada)</option>
+                    </select>
+                    <a href="/profile" class="topbar-profile-btn" title="My Profile">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </a>
+                </div>
+            </header>
+
+            <div class="dashboard-layout">
+                <div class="modules-section">
+                    <!-- Segment toggle -->
+                    <div class="seg-wrap">
+                        <div class="segmented-control">
+                            <div id="segment-bg"></div>
+                            <button class="segment-btn active" onclick="updateSegment(0)" style="color:var(--primary-color);">Debit Card</button>
+                            <button class="segment-btn" onclick="updateSegment(1)" style="color:#64748b;">Credit Card</button>
+                        </div>
+                    </div>
+
+                    <!-- Card Slider / Tabs -->
+                    <div class="card-slider-container" style="margin-bottom: 2rem; overflow: hidden; position: relative;">
+                        <div id="cards-wrapper" style="display: flex; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); gap: 1rem;">
+                            <!-- Debit Card Item -->
+                            <div class="slider-item" style="min-width: 100%;">
+                                <div class="premium-balance-card card-visual" id="debit-card-visual" 
+                                     data-number="4512 8900 1234 5678" data-cvv="123" data-expiry="12/28"
+                                     style="background: linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%); width: 100%; cursor: pointer; box-shadow: 0 20px 40px rgba(79, 70, 229, 0.3);">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                        <div style="font-weight: 800; font-size: 1.2rem;">SIRI <span style="font-weight: 400;">DEBIT</span></div>
+                                        <div id="debit-status-badge" style="display: none; background: #ef4444; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">BLOCKED</div>
+                                        <i class="fa-brands fa-cc-visa" style="font-size: 3rem; opacity: 0.9;"></i>
+                                    </div>
+                                    <div class="card-number-display" style="margin: 3.5rem 0; letter-spacing: 6px; font-size: 1.8rem; font-family: 'Courier New', monospace; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                        •••• •••• •••• 5678
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                                        <div>
+                                            <div style="font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; margin-bottom: 5px;">Card Holder</div>
+                                            <div style="font-weight: 600; font-size: 1.1rem; letter-spacing: 1px;">{{ user_name|upper }}</div>
+                                        </div>
+                                        <div style="display: flex; gap: 30px;">
+                                            <div style="text-align: right;">
+                                                <div style="font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; margin-bottom: 5px;">Expires</div>
+                                                <div class="card-expiry-display" style="font-weight: 600; font-size: 1.1rem;">••/••</div>
+                                            </div>
+                                            <div style="text-align: right;">
+                                                <div style="font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; margin-bottom: 5px;">CVV</div>
+                                                <div class="card-cvv-display" style="font-weight: 600; font-size: 1.1rem;">•••</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Credit Card Item -->
+                            <div class="slider-item" style="min-width: 100%;">
+                                {% if has_credit_card %}
+                                <div class="premium-balance-card card-visual" id="credit-card-visual"
+                                     data-number="5241 6602 1190 9901" data-cvv="884" data-expiry="08/29"
+                                     style="background: linear-gradient(135deg, #111827 0%, #374151 100%); border: 1px solid #4b5563; width: 100%; cursor: pointer; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                        <div style="font-weight: 800; font-size: 1.2rem; color: #fbbf24;">SIRI <span style="font-weight: 400; color: white;">PLATINUM</span></div>
+                                        <div id="credit-status-badge" style="display: none; background: #ef4444; color: white; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700;">BLOCKED</div>
+                                        <i class="fa-brands fa-cc-mastercard" style="font-size: 3rem; color: #fbbf24;"></i>
+                                    </div>
+                                    <div class="card-number-display" style="margin: 3.5rem 0; letter-spacing: 6px; font-size: 1.8rem; font-family: 'Courier New', monospace; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                                        •••• •••• •••• 9901
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                                        <div>
+                                            <div style="font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; margin-bottom: 5px;">Credit Limit</div>
+                                            <div style="font-weight: 600; color: #34d399; font-size: 1.2rem;">₹5,00,000</div>
+                                        </div>
+                                        <div style="display: flex; gap: 30px;">
+                                            <div style="text-align: right;">
+                                                <div style="font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; margin-bottom: 5px;">Expires</div>
+                                                <div class="card-expiry-display" style="font-weight: 600; font-size: 1.1rem; color: white;">••/••</div>
+                                            </div>
+                                            <div style="text-align: right;">
+                                                <div style="font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; margin-bottom: 5px;">CVV</div>
+                                                <div class="card-cvv-display" style="font-weight: 600; font-size: 1.1rem; color: white;">•••</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="glass-card" style="height: 100%; min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: #f8fafc; border: 2px dashed #cbd5e1;">
+                                    <div style="width: 80px; height: 80px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                                        <i class="fa-solid fa-lock" style="font-size: 2.5rem; color: #94a3b8;"></i>
+                                    </div>
+                                    <h3 style="color: #475569; margin-bottom: 10px;">Not Eligible Now</h3>
+                                    <p style="font-size: 0.9rem; color: #94a3b8; max-width: 250px;">Complete 3 more months of consistent usage to unlock your Credit Card.</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <!-- Management Section (Dynamic) -->
+                    <div id="mgmt-debit">
+                        <div class="glass-card">
+                            <h3 class="section-title">Debit Card Quick Actions</h3>
+                            <div class="quick-actions-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                                <div class="action-row" onclick="toggleCardDetails('debit')">
+                                    <div class="action-row-info">
+                                        <div class="action-row-icon" style="background: #eef2ff; color: #4f46e5;"><i class="fa-solid fa-eye" id="debit-view-icon"></i></div>
+                                        <div>
+                                            <div class="pay-label" id="debit-view-text">View Details</div>
+                                            <div style="font-size: 0.75rem; color: #94a3b8;">Show number, expiry, CVV</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="action-row" onclick="openModal('limits-modal', 'debit')">
+                                    <div class="action-row-info">
+                                        <div class="action-row-icon" style="background: #f0fdf4; color: #10b981;"><i class="fa-solid fa-sliders"></i></div>
+                                        <div>
+                                            <div class="pay-label">Usage Limits</div>
+                                            <div style="font-size: 0.75rem; color: #94a3b8;">ATM &amp; Online limits</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="action-row" onclick="openModal('pin-modal', 'debit')">
+                                    <div class="action-row-info">
+                                        <div class="action-row-icon" style="background: #fffbeb; color: #f59e0b;"><i class="fa-solid fa-key"></i></div>
+                                        <div>
+                                            <div class="pay-label">Reset PIN</div>
+                                            <div style="font-size: 0.75rem; color: #94a3b8;">Set new 4-digit PIN</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="action-row" id="debit-block-btn" onclick="openModal('block-modal', 'debit')">
+                                    <div class="action-row-info">
+                                        <div class="action-row-icon" style="background: #fef2f2; color: #ef4444;"><i class="fa-solid fa-ban"></i></div>
+                                        <div>
+                                            <div class="pay-label" id="debit-block-text" style="color: #ef4444;">Block Card</div>
+                                            <div style="font-size: 0.75rem; color: #94a3b8;">Instantly disable card</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                <div class="action-row" onclick="toggleCardDetails('debit')">
+
+                    {% if has_credit_card %}
+                    <div id="mgmt-credit" style="display: none;">
+                        <div class="glass-card">
+                            <h3 class="section-title">Credit Card Quick Actions</h3>
+                            <div class="quick-actions-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                                <div class="action-row" onclick="toggleCardDetails('credit')">
+                                    <div class="action-row-info">
+                                        <div class="action-row-icon" style="background: #eef2ff; color: #4f46e5;"><i class="fa-solid fa-eye" id="credit-view-icon"></i></div>
+                                        <div class="pay-label" id="credit-view-text">View Details</div>
+                                    </div>
+                                </div>
+                                <div class="action-row" onclick="showToast('Loading statements...')">
+                                    <div class="action-row-info">
+                                        <div class="action-row-icon" style="background: #f5f3ff; color: #7c3aed;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                                        <div class="pay-label">Monthly Statements</div>
+                                    </div>
+                                </div>
+                                <div class="action-row" onclick="openModal('limits-modal', 'credit')">
+                                    <div class="action-row-info">
+                                        <div class="action-row-icon" style="background: #fdf2f8; color: #db2777;"><i class="fa-solid fa-sliders"></i></div>
+                                        <div class="pay-label">Set Credit Limits</div>
+                                    </div>
+                                </div>
+                                <div class="action-row" id="credit-block-btn" onclick="openModal('block-modal', 'credit')">
+                                    <div class="action-row-info">
+                                        <div class="action-row-icon" style="background: #fef2f2; color: #ef4444;"><i class="fa-solid fa-ban"></i></div>
+                                        <div class="pay-label" id="credit-block-text" style="color: #ef4444;">Block Card</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Right Sidebar -->
+                <div class="sidebar-right">
+
+                    <!-- New Card CTA -->
+                    <div class="atm-sidebar-dark" style="margin-bottom: 1.5rem;">
+                        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+                            <div style="width:48px;height:48px;background:rgba(56,189,248,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#38bdf8;flex-shrink:0;">
+                                <i class="fa-solid fa-credit-card"></i>
+                            </div>
+                            <div>
+                                <h3 style="margin-bottom:2px;">New Card Request</h3>
+                                <p style="margin:0;">Order replacement or add-on card</p>
+                            </div>
+                        </div>
+                        <button class="atm-apply-btn" onclick="openModal('apply-modal')">
+                            <i class="fa-solid fa-plus" style="margin-right:8px;"></i>Apply Now
+                        </button>
+                    </div>
+
+                    <!-- Security Insights -->
+                    <div class="glass-card">
+                        <div class="section-title">Security Insights</div>
+                        <div class="sec-tip">
+                            <i class="fa-solid fa-shield-halved" style="color:#f59e0b;font-size:1rem;"></i>
+                            <span>Never share your OTP or ATM PIN with anyone, including bank staff.</span>
+                        </div>
+                        <div class="sec-tip">
+                            <i class="fa-solid fa-globe-asia-australia" style="color:#3b82f6;font-size:1rem;"></i>
+                            <span>International transactions are disabled by default for your security.</span>
+                        </div>
+                        <div class="sec-tip">
+                            <i class="fa-solid fa-bell" style="color:#10b981;font-size:1rem;"></i>
+                            <span>Enable SMS alerts to get notified of every card transaction instantly.</span>
+                        </div>
+                        <a href="#" style="color:var(--primary-color);font-size:0.85rem;font-weight:700;text-decoration:none;">
+                            Card Safety Guide <i class="fa-solid fa-arrow-right" style="font-size:0.7rem;margin-left:4px;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODALS -->
+            <!-- Block Card Modal -->
+            <div id="block-modal" class="modal-overlay">
+                <div class="modal-content">
+                    <h3 style="color: #ef4444; margin-bottom: 1rem;">Block Card?</h3>
+                    <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">This will instantly disable all transactions on this card. This action can only be reversed by visiting a branch.</p>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-primary" style="background: #ef4444; flex: 1;" onclick="confirmBlock()">Yes, Block it</button>
+                        <button class="btn-primary" style="background: #94a3b8; flex: 1;" onclick="closeModal('block-modal')">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usage Limits Modal -->
+            <div id="limits-modal" class="modal-overlay">
+                <div class="modal-content" style="max-width: 450px;">
+                    <h3 style="margin-bottom: 1rem;">Set Usage Limits</h3>
+                    <div class="input-group">
+                        <label>Daily ATM Withdrawal</label>
+                        <input type="range" min="0" max="50000" step="5000" value="25000" style="width: 100%;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px;">
+                            <span>₹0</span><span id="limit-val-1">₹25,000</span><span>₹50,000</span>
+                        </div>
+                    </div>
+                    <div class="input-group" style="margin-top: 1.5rem;">
+                        <label>Online (E-com) Transactions</label>
+                        <input type="range" min="0" max="100000" step="10000" value="50000" style="width: 100%;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px;">
+                            <span>₹0</span><span id="limit-val-2">₹50,000</span><span>₹1,00,000</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" style="margin-top: 1rem; width: 100%;" onclick="saveLimits()">Save Limits</button>
+                    <button class="btn-primary" style="margin-top: 0.5rem; width: 100%; background: #94a3b8;" onclick="closeModal('limits-modal')">Close</button>
+                </div>
+            </div>
+
+            <!-- Apply New Card Modal -->
+            <div id="apply-modal" class="modal-overlay">
+                <div class="modal-content" style="max-width: 500px;">
+                    <h3 style="margin-bottom: 1rem;">New Card Application</h3>
+                    <div class="input-group">
+                        <label>Select Card Network</label>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;" id="card-network-container">
+                            <div class="choice-box active" onclick="selectChoice(this)">Visa</div>
+                            <div class="choice-box" onclick="selectChoice(this)">Mastercard</div>
+                            <div class="choice-box" onclick="selectChoice(this)">Rupay</div>
+                        </div>
+                    </div>
+                    <div class="input-group" style="margin-top: 1rem;">
+                        <label>Name on Card</label>
+                        <input type="text" id="card-name-on" placeholder="e.g. {{ user_name|upper }}" required 
+                               style="width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-top:5px;">
+                    </div>
+                    <div class="input-group" style="margin-top: 1rem;">
+                        <label>Card Variant</label>
+                        <select id="card-variant" style="width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-top:5px;">
+                            <option value="Classic">Classic (Basic)</option>
+                            <option value="Platinum" selected>Platinum (Rewards)</option>
+                            <option value="Signature">Signature (Lounge Access)</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="margin-top: 1rem;">
+                        <label>Delivery Address</label>
+                        <textarea id="card-address" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; height: 80px; resize: none;" placeholder="Enter your full residential address..."></textarea>
+                    </div>
+                    <button class="btn-primary" style="width: 100%; margin-top: 1rem;" onclick="submitApplication()">Submit Application</button>
+                    <button class="btn-primary" style="width: 100%; margin-top: 0.5rem; background: #94a3b8;" onclick="closeModal('apply-modal')">Cancel</button>
+                </div>
+            </div>
+
+            <!-- PIN Reset Modal -->
+            <div id="pin-modal" class="modal-overlay">
+                <div class="modal-content">
+                    <h3 style="margin-bottom: 1rem;">Reset ATM PIN</h3>
+                    <div class="input-group">
+                        <label>Enter New 4-Digit PIN</label>
+                        <input type="password" maxlength="4" style="width: 100%; text-align: center; font-size: 1.5rem; letter-spacing: 10px;">
+                    </div>
+                    <button class="btn-primary" style="width: 100%; margin-top: 1rem;" onclick="savePin()">Confirm New PIN</button>
+                    <button class="btn-primary" style="width: 100%; margin-top: 0.5rem; background: #94a3b8;" onclick="closeModal('pin-modal')">Cancel</button>
+                </div>
+            </div>
+
+            <script>
+                let currentActionTarget = '';
+
+                function updateSegment(index) {
+                    const bg = document.getElementById('segment-bg');
+                    const btns = document.querySelectorAll('.segment-btn');
+                    
+                    // Animate background
+                    bg.style.transform = `translateX(${index * 100}%)`;
+                    
+                    // Update button states
+                    btns.forEach((btn, i) => {
+                        if (i === index) {
+                            btn.classList.add('active');
+                            btn.style.color = 'var(--primary-color)';
+                        } else {
+                            btn.classList.remove('active');
+                            btn.style.color = '#64748b';
+                        }
+                    });
+
+                    // Trigger slider
+                    slideCards(index);
+                }
+
+                function slideCards(index) {
+                    const wrapper = document.getElementById('cards-wrapper');
+                    wrapper.style.transform = `translateX(-${index * 100}%)`;
+
+                    // Switch management view if credit card exists
+                    if (document.getElementById('mgmt-credit')) {
+                        if (index === 0) {
+                            document.getElementById('mgmt-debit').style.display = 'block';
+                            document.getElementById('mgmt-credit').style.display = 'none';
+                        } else {
+                            document.getElementById('mgmt-debit').style.display = 'none';
+                            document.getElementById('mgmt-credit').style.display = 'block';
+                        }
+                    }
+                }
+
+                function openModal(id, target) {
+                    document.getElementById(id).style.display = 'flex';
+                    currentActionTarget = target;
+                }
+
+                function closeModal(id) {
+                    document.getElementById(id).style.display = 'none';
+                }
+
+                function confirmBlock() {
+                    const card = document.getElementById(`${currentActionTarget}-card-visual`);
+                    const badge = document.getElementById(`${currentActionTarget}-status-badge`);
+                    const btnText = document.getElementById(`${currentActionTarget}-block-text`);
+                    
+                    card.style.filter = 'grayscale(100%) brightness(0.6)';
+                    badge.style.display = 'block';
+                    btnText.innerText = 'Card Blocked';
+                    
+                    closeModal('block-modal');
+                    showToast(`${currentActionTarget.toUpperCase()} card has been blocked.`);
+                }
+
+                function saveLimits() {
+                    showToast('Usage limits updated successfully.');
+                    closeModal('limits-modal');
+                }
+
+                function savePin() {
+                    showToast('ATM PIN has been updated.');
+                    closeModal('pin-modal');
+                }
+
+                async function submitApplication() {
+                    const network = document.querySelector('#card-network-container .choice-box.active').innerText;
+                    const nameOnCard = document.getElementById('card-name-on').value;
+                    const variant = document.getElementById('card-variant').value;
+                    const address = document.getElementById('card-address').value;
+
+                    if (!nameOnCard || !address) {
+                        showToast("Please fill all details.");
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch('/api/user/kyc/submit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                request_type: 'ATM_CARD',
+                                details: `${network} ${variant} | Name: ${nameOnCard} | Deliver to: ${address}` 
+                            })
+                        });
+                        // Since we don't have a dedicated /api/user/card route that takes details yet, 
+                        // I'll repurpose create_bank_request if possible or just use a generic one.
+                        // Actually, I'll update app.py to handle a generic request submission.
+                        showToast('Application submitted! Card will arrive in 7 days.');
+                        closeModal('apply-modal');
+                    } catch (e) {
+                        showToast("Network error.");
+                    }
+                }
+
+                function selectChoice(el) {
+                    const siblings = el.parentElement.querySelectorAll('.choice-box');
+                    siblings.forEach(s => s.classList.remove('active'));
+                    el.classList.add('active');
+                }
+
+                // Previous logic
+                function toggleCardDetails(type) {
+                    const card = document.getElementById(`${type}-card-visual`);
+                    const numDisplay = card.querySelector('.card-number-display');
+                    const expDisplay = card.querySelector('.card-expiry-display');
+                    const cvvDisplay = card.querySelector('.card-cvv-display');
+                    const viewText = document.getElementById(`${type}-view-text`);
+                    const viewIcon = document.getElementById(`${type}-view-icon`);
+
+                    const isMasked = numDisplay.innerText.includes('••••');
+
+                    if (isMasked) {
+                        numDisplay.innerText = card.getAttribute('data-number');
+                        expDisplay.innerText = card.getAttribute('data-expiry');
+                        cvvDisplay.innerText = card.getAttribute('data-cvv');
+                        viewText.innerText = 'Hide Details';
+                        viewIcon.classList.remove('fa-eye');
+                        viewIcon.classList.add('fa-eye-slash');
+                        showToast('Details revealed');
+                    } else {
+                        const realNum = card.getAttribute('data-number');
+                        numDisplay.innerText = '•••• •••• •••• ' + realNum.slice(-4);
+                        expDisplay.innerText = '••/••';
+                        cvvDisplay.innerText = '•••';
+                        viewText.innerText = 'View Details';
+                        viewIcon.classList.remove('fa-eye-slash');
+                        viewIcon.classList.add('fa-eye');
+                    }
+                }
+            </script>
+        </main>
+    </div>
+    <div id="toast" class="toast"></div>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=2.1"></script>
+</body>
+</html>

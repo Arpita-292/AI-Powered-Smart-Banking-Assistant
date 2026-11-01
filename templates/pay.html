@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay - SIRI BANK AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2 class="logo" style="font-size: 1.5rem;">SIRI<br>BANK</h2>
+            
+            <nav class="sidebar-nav">
+                <a href="/home" class="nav-item"><i class="fa-solid fa-house"
+                        style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಮುಖಪುಟ{% else %}Home{% endif %}</span></a>
+                <a href="/pay" class="nav-item active"><i class="fa-solid fa-paper-plane"
+                        style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಹಣ ವರ್ಗಾವಣೆ{% else %}Pay{% endif %}</span></a>
+                <a href="/atm-services" class="nav-item"><i class="fa-solid fa-credit-card"
+                        style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಎಟಿಎಂ ಸೇವೆಗಳು{% else %}ATM Services{% endif %}</span></a>
+                <a href="/aadhaar-kyc" class="nav-item"><i class="fa-solid fa-id-card"
+                        style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಆಧಾರ್ ಕೆವೈಸಿ{% else %}Aadhaar/KYC{% endif %}</span></a>
+                <a href="/request-history" class="nav-item"><i class="fa-solid fa-clock-rotate-left"
+                        style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ವಿನಂತಿ ಇತಿಹಾಸ{% else %}Request History{% endif %}</span></a>
+            </nav>
+
+
+            <a href="#" class="nav-item logout-btn" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"
+                    style="margin-right:8px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಲಾಗ್ ಔಟ್{% else %}Logout{% endif %}</span></a>
+        </aside>
+
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="user-greeting">
+                    <h3>SIRI BANK <span style="color:var(--primary-color); margin-left: 10px;">{% if language == 'Kannada' %}ಹಣ ವರ್ಗಾವಣೆ{% else %}Pay{% endif %}</span></h3>
+                </div>
+                <div class="top-controls">
+                    <select id="language-selector" class="language-selector" onchange="syncVoiceLanguage(this.value)">
+                        <option value="English" {% if language=='English' %}selected{% endif %}>English</option>
+                        <option value="Kannada" {% if language=='Kannada' %}selected{% endif %}>ಕನ್ನಡ (Kannada)</option>
+                    </select>
+                    <a href="/profile" class="topbar-profile-btn" title="My Profile">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </a>
+                </div>
+            </header>
+
+            <div class="dashboard-layout">
+                <div class="modules-section">
+
+
+                    <!-- Search Bar -->
+                    <div class="input-group" style="margin-top: 1rem;">
+                        <div style="position: relative;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                            <input type="text" id="payee-search-input" oninput="searchPayees()" placeholder="Search name, phone number or UPI ID" style="padding-left: 45px; height: 55px; border-radius: 30px; border: 1px solid #e2e8f0; background: white; width: 100%;">
+                        </div>
+                    </div>
+
+                    <!-- Money Transfer Section -->
+                    <div class="glass-card" style="margin-top: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 class="section-title" style="margin-bottom:0;">Money Transfer</h3>
+                            <button class="btn-voice-fill" onclick="triggerVoiceAssistant('Say transfer details such as pay 500 rupees to 9876543210')">
+                                <i class="fa-solid fa-microphone"></i> <span>Fill by Voice</span>
+                            </button>
+                        </div>
+                        <div class="quick-actions-grid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));">
+                            <div class="action-item" onclick="showSidebarAction('bank-transfer')">
+                                <div class="action-icon" style="color: #3b82f6; background: #eff6ff;"><i class="fa-solid fa-building-columns"></i></div>
+                                <div class="action-label">Bank Transfer</div>
+                            </div>
+                            <div class="action-item" onclick="showSidebarAction('pay-phone')">
+                                <div class="action-icon" style="color: #10b981; background: #ecfdf5;"><i class="fa-solid fa-mobile-screen"></i></div>
+                                <div class="action-label">To Mobile</div>
+                            </div>
+                            <div class="action-item" onclick="location.href='/pay'">
+                                <div class="action-icon" style="color: #f59e0b; background: #fffbeb;"><i class="fa-solid fa-repeat"></i></div>
+                                <div class="action-label">Self Trans</div>
+                            </div>
+                            <div class="action-item" onclick="showSidebarAction('upi-pay')">
+                                <div class="action-icon" style="color: #6366f1; background: #eef2ff;"><i class="fa-solid fa-at"></i></div>
+                                <div class="action-label">To UPI ID</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Payees Section -->
+                    <div class="glass-card" style="margin-top: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3 class="section-title" style="margin-bottom: 0;">Recent Payees</h3>
+                            <a href="#" style="color: var(--primary-color); font-size: 0.9rem; font-weight: 600; text-decoration: none;">View All</a>
+                        </div>
+                        <div class="user-circles" id="suggested-users-list">
+                            <!-- Populated by JS -->
+                            <div style="color: #94a3b8; font-size: 0.8rem;">Loading people...</div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <!-- Right Sidebar for Pay Page (PC only) -->
+                <div class="sidebar-right" id="right-sidebar-panel">
+                    <!-- Default View Container -->
+                    <div id="default-sidebar-content">
+                        <div class="glass-card">
+                            <h3 class="section-title">UPI Management</h3>
+                            <div class="action-row" onclick="showToast('UPI management coming soon')">
+                                <div class="action-row-info">
+                                    <div class="action-row-icon"><i class="fa-solid fa-qrcode"></i></div>
+                                    <div class="pay-label">Manage UPI Numbers</div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right" style="color: #94a3b8;"></i>
+                            </div>
+                            <div class="action-row" onclick="showToast('Autopay settings coming soon')">
+                                <div class="action-row-info">
+                                    <div class="action-row-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                                    <div class="pay-label">Autopay Settings</div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right" style="color: #94a3b8;"></i>
+                            </div>
+                        </div>
+
+                        <div class="glass-card" style="margin-top: 1.5rem;">
+                            <h3 class="section-title">Offers & Rewards</h3>
+                            <div style="background: #fffbeb; border: 1px dashed #f59e0b; padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
+                                <p style="color: #b45309; font-weight: 600; font-size: 0.85rem;">Flat ₹50 Cashback</p>
+                                <p style="color: #d97706; font-size: 0.75rem;">On your first electricity bill</p>
+                            </div>
+                            <div style="background: #ecfdf5; border: 1px dashed #10b981; padding: 1rem; border-radius: 12px;">
+                                <p style="color: #047857; font-weight: 600; font-size: 0.85rem;">Win Scratch Cards</p>
+                                <p style="color: #059669; font-size: 0.75rem;">On every transfer above ₹500</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Action Area -->
+                    <div id="dynamic-action-content" style="display:none;">
+                        <button class="close-modal" onclick="resetSidebar()" style="margin-bottom: 1rem; width: 40px; height: 40px;"><i class="fa-solid fa-arrow-left"></i></button>
+                        
+                        <!-- Pay Phone Tool -->
+                        <div id="sidebar-pay-phone" class="sidebar-tool" style="display:none;">
+                            <div class="glass-card">
+                                <h3>Pay Phone Number</h3>
+
+                                <div style="margin-bottom: 1.5rem;">
+                                    <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.025em; display: block; margin-bottom: 10px;">Recent Contacts</label>
+                                    <div id="sidebar-recent-payees-alt" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none;">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+
+                                <form onsubmit="event.preventDefault(); executeSidebarPhoneTransfer();">
+                                    <div class="input-group">
+                                        <label id="lbl-side-pay-phone">Recipient Mobile Number</label>
+                                        <div style="position: relative;">
+                                            <input type="tel" id="side-pay-phone" placeholder="Enter 10-digit mobile number" maxlength="10" required oninput="lookupPayeeName(this.value)" style="padding-right: 36px;">
+                                            <span id="phone-lookup-spinner" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #0284c7;"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- PhonePe / Google Pay Style Verified Recipient Card -->
+                                    <div id="side-pay-recipient-card" style="display: none; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 12px; padding: 10px 14px; margin-top: -6px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.1);">
+                                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="width: 36px; height: 36px; border-radius: 50%; background: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 800; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);" id="recipient-avatar-initial">R</div>
+                                                <div>
+                                                    <div style="font-weight: 800; color: #065f46; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                                                        <span id="recipient-verified-name">Customer Name</span>
+                                                        <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 0.85rem;" title="Verified SIRI BANK Account"></i>
+                                                    </div>
+                                                    <div style="font-size: 0.75rem; color: #047857; font-weight: 600;" id="recipient-verified-acc">SIRI BANK • ACC80000</div>
+                                                </div>
+                                            </div>
+                                            <span style="background: #d1fae5; color: #047857; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.5px;">VERIFIED</span>
+                                        </div>
+                                    </div>
+
+                                    <div id="side-pay-recipient-error" style="display: none; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: 10px; padding: 8px 12px; margin-top: -6px; margin-bottom: 14px; font-size: 0.78rem; color: #b45309;">
+                                        <i class="fa-solid fa-triangle-exclamation" style="margin-right: 4px;"></i> <span id="recipient-error-text">No registered SIRI BANK user found with this mobile number.</span>
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label id="lbl-side-pay-amt">Amount to Send (₹)</label>
+                                        <input type="number" id="side-pay-amt" placeholder="0.00" min="1" step="0.01" required>
+                                    </div>
+                                    <button type="submit" id="side-confirm-pay" class="btn-primary">Confirm Payment</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Bank Transfer Tool -->
+                        <div id="sidebar-bank-transfer" class="sidebar-tool" style="display:none;">
+                            <div class="glass-card">
+                                <h3>Bank Transfer</h3>
+                                <form onsubmit="event.preventDefault(); executeSidebarBankTransfer();">
+                                    <div class="input-group">
+                                        <label>Account Number</label>
+                                        <input type="text" id="side-bank-acc" placeholder="ACC8000x" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Amount (₹)</label>
+                                        <input type="number" id="side-bank-amt" placeholder="0.00" min="1" required>
+                                    </div>
+                                    <button type="submit" id="side-confirm-bank" class="btn-primary">Send Money</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- To UPI ID Tool -->
+                        <div id="sidebar-upi-pay" class="sidebar-tool" style="display:none;">
+                            <div class="glass-card">
+                                <h3>Pay to UPI ID</h3>
+                                <form onsubmit="event.preventDefault(); executeSidebarUPITransfer();">
+                                    <div class="input-group">
+                                        <label>UPI ID</label>
+                                        <input type="text" id="side-upi-id" placeholder="username@upi" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Amount (₹)</label>
+                                        <input type="number" id="side-upi-amt" placeholder="0.00" min="1" required>
+                                    </div>
+                                    <button type="submit" id="side-confirm-upi" class="btn-primary">Pay UPI ID</button>
+                                </form>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Error Toast Notification -->
+    <div id="toast" class="toast"></div>
+    <div id="toast-msg" class="toast"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=2.1"></script>
+    <script>
+        // Ensure payees are loaded on this page too
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof loadSuggestedPayees === 'function') {
+                loadSuggestedPayees();
+            }
+        });
+    </script>
+</body>
+
+</html>

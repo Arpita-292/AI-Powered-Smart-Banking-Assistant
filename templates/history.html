@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request & Activity History - SIRI BANK AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .history-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+        }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            flex-shrink: 0;
+        }
+        .stat-icon.total { background: #eef2ff; color: #4f46e5; }
+        .stat-icon.pending { background: #fef3c7; color: #d97706; }
+        .stat-icon.approved { background: #dcfce7; color: #16a34a; }
+        .stat-icon.txns { background: #f0fdf4; color: #059669; }
+
+        .stat-content h4 {
+            font-size: 0.825rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+        .stat-content .stat-val {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        /* Tabs */
+        .history-tabs {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.75rem;
+            overflow-x: auto;
+        }
+        .history-tab-btn {
+            padding: 0.6rem 1.25rem;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .history-tab-btn:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .history-tab-btn.active {
+            background: var(--primary-color, #4f46e5);
+            color: white;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Request Items */
+        .request-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 1.2rem;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+            gap: 1rem;
+        }
+        .request-item:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+        .req-main {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        .req-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .req-icon.kyc { background: #e0e7ff; color: #4338ca; }
+        .req-icon.atm { background: #fef3c7; color: #b45309; }
+        .req-icon.loan { background: #fce7f3; color: #be185d; }
+        .req-icon.other { background: #f1f5f9; color: #475569; }
+
+        .req-info h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.25rem;
+        }
+        .req-details {
+            font-size: 0.875rem;
+            color: #475569;
+            margin-bottom: 0.35rem;
+            line-height: 1.4;
+        }
+        .req-date {
+            font-size: 0.775rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.775rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        .status-PENDING { background: #fef3c7; color: #b45309; }
+        .status-APPROVED { background: #dcfce7; color: #15803d; }
+        .status-REJECTED { background: #fee2e2; color: #b91c1c; }
+
+        .rejection-alert {
+            margin-top: 0.6rem;
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            border-radius: 8px;
+            padding: 0.6rem 0.85rem;
+            font-size: 0.825rem;
+            color: #be123c;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .rejection-alert a {
+            color: #9f1239;
+            font-weight: 700;
+            text-decoration: underline;
+            margin-left: auto;
+        }
+
+        .empty-history-card {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 2px dashed #cbd5e1;
+            margin: 1rem 0;
+        }
+        .empty-history-card i {
+            font-size: 3rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+        .empty-history-card h4 {
+            font-size: 1.15rem;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        .empty-history-card p {
+            color: #64748b;
+            font-size: 0.9rem;
+            max-width: 450px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        .section-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-outline {
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: #334155;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-outline:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            color: #0f172a;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        .activity-item:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            transform: translateY(-1px);
+        }
+        .activity-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .activity-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+        .activity-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #0f172a;
+            margin-bottom: 0.2rem;
+        }
+        .activity-time {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .activity-amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-layout {
+                padding: 1rem 1rem 5rem 1rem !important;
+            }
+            .history-stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+            }
+            .stat-card {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+            .stat-content .stat-val {
+                font-size: 1.35rem;
+            }
+            .request-item {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .req-status {
+                align-self: flex-start;
+            }
+            .activity-item {
+                padding: 0.875rem 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .history-stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .activity-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .activity-amount {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <h2 class="logo" style="font-size: 1.5rem;">SIRI<br>BANK</h2>
+            <nav class="sidebar-nav">
+                <a href="/home" class="nav-item"><i class="fa-solid fa-house" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಮುಖಪುಟ{% else %}Home{% endif %}</span></a>
+                <a href="/pay" class="nav-item"><i class="fa-solid fa-paper-plane" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಹಣ ವರ್ಗಾವಣೆ{% else %}Pay{% endif %}</span></a>
+                <a href="/atm-services" class="nav-item"><i class="fa-solid fa-credit-card" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಎಟಿಎಂ ಸೇವೆಗಳು{% else %}ATM Services{% endif %}</span></a>
+                <a href="/aadhaar-kyc" class="nav-item"><i class="fa-solid fa-id-card" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಆಧಾರ್ ಕೆವೈಸಿ{% else %}Aadhaar/KYC{% endif %}</span></a>
+                <a href="/request-history" class="nav-item active"><i class="fa-solid fa-clock-rotate-left" style="margin-right:8px; width:20px;"></i><span class="menu-text">{% if language == 'Kannada' %}ವಿನಂತಿ ಇತಿಹಾಸ{% else %}Request History{% endif %}</span></a>
+            </nav>
+
+            <a href="#" class="nav-item logout-btn" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right:8px;"></i><span class="menu-text">{% if language == 'Kannada' %}ಲಾಗ್ ಔಟ್{% else %}Logout{% endif %}</span></a>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="user-greeting">
+                    <h3>SIRI BANK <span style="color:var(--primary-color); margin-left: 10px;">{% if language == 'Kannada' %}ವಿನಂತಿ ಇತಿಹಾಸ{% else %}Request History{% endif %}</span></h3>
+                </div>
+                <div class="top-controls">
+                    <select id="language-selector" class="language-selector" onchange="syncVoiceLanguage(this.value)">
+                        <option value="English" {% if language=='English' %}selected{% endif %}>English</option>
+                        <option value="Kannada" {% if language=='Kannada' %}selected{% endif %}>ಕನ್ನಡ (Kannada)</option>
+                    </select>
+                    <button class="btn-primary" onclick="location.href='/api/user/statement/download'" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                        <i class="fa-solid fa-download" style="margin-right: 5px;"></i> {% if language == 'Kannada' %}ಸ್ಟೇಟ್‌ಮೆಂಟ್ ಡೌನ್‌ಲೋಡ್{% else %}Download Statement{% endif %}
+                    </button>
+                    <a href="/profile" class="topbar-profile-btn" title="My Profile">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </a>
+                </div>
+            </header>
+
+            <div class="dashboard-layout single-col" style="display: block; max-width: 1050px; margin: 0 auto; width: 100%; box-sizing: border-box; padding-bottom: 4rem;">
+                <!-- 1. Stats Grid -->
+                <div class="history-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon total"><i class="fa-solid fa-list-check"></i></div>
+                        <div class="stat-content">
+                            <h4>{% if language == 'Kannada' %}ಒಟ್ಟು ವಿನಂತಿಗಳು{% else %}Total Requests{% endif %}</h4>
+                            <div class="stat-val" id="stat-total-requests">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pending"><i class="fa-solid fa-clock"></i></div>
+                        <div class="stat-content">
+                            <h4>{% if language == 'Kannada' %}ಪರಿಶೀಲನೆಯಲ್ಲಿರುವವು{% else %}Pending Review{% endif %}</h4>
+                            <div class="stat-val" id="stat-pending-requests" style="color:#d97706;">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon approved"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="stat-content">
+                            <h4>{% if language == 'Kannada' %}ಅನುಮೋದಿತ / ಸಕ್ರಿಯ{% else %}Approved / Active{% endif %}</h4>
+                            <div class="stat-val" id="stat-approved-requests" style="color:#16a34a;">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon txns"><i class="fa-solid fa-receipt"></i></div>
+                        <div class="stat-content">
+                            <h4>{% if language == 'Kannada' %}ವಹಿವಾಟುಗಳು{% else %}Transactions{% endif %}</h4>
+                            <div class="stat-val" id="stat-total-txns" style="color:#059669;">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Filter Tabs -->
+                <div class="history-tabs">
+                    <button class="history-tab-btn active" id="tab-all" onclick="filterHistoryTab('all')">
+                        <i class="fa-solid fa-layer-group"></i> {% if language == 'Kannada' %}ಎಲ್ಲಾ ಇತಿಹಾಸ{% else %}All History{% endif %}
+                    </button>
+                    <button class="history-tab-btn" id="tab-requests" onclick="filterHistoryTab('requests')">
+                        <i class="fa-solid fa-id-card"></i> {% if language == 'Kannada' %}ಸೇವಾ ವಿನಂತಿಗಳು{% else %}Service Requests{% endif %} (<span id="count-badge-reqs">0</span>)
+                    </button>
+                    <button class="history-tab-btn" id="tab-transactions" onclick="filterHistoryTab('transactions')">
+                        <i class="fa-solid fa-arrow-right-arrow-left"></i> {% if language == 'Kannada' %}ವಹಿವಾಟುಗಳು{% else %}Transactions{% endif %} (<span id="count-badge-txns">0</span>)
+                    </button>
+                </div>
+
+                <!-- 3. Service Requests Section -->
+                <div id="section-service-requests" class="glass-card" style="margin-bottom: 2rem;">
+                    <div class="section-header">
+                        <h3><i class="fa-solid fa-bell-concierge" style="color:var(--primary-color);"></i> {% if language == 'Kannada' %}ಬ್ಯಾಂಕಿಂಗ್ ಸೇವಾ ವಿನಂತಿಗಳು{% else %}Banking Service Requests{% endif %}</h3>
+                        <div style="display:flex; gap: 8px;">
+                            <a href="/aadhaar-kyc" class="btn-outline"><i class="fa-solid fa-id-card"></i> {% if language == 'Kannada' %}ಆಧಾರ್ ಕೆವೈಸಿ{% else %}Aadhaar KYC{% endif %}</a>
+                            <a href="/atm-services" class="btn-outline"><i class="fa-solid fa-credit-card"></i> {% if language == 'Kannada' %}ಕಾರ್ಡ್ ವಿನಂತಿ{% else %}Request Card{% endif %}</a>
+                        </div>
+                    </div>
+                    <div id="service-requests-list">
+                        <div style="text-align:center; padding: 25px; color: #94a3b8;">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> {% if language == 'Kannada' %}ಸೇವಾ ವಿನಂತಿಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...{% else %}Loading service requests...{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Transactions Section -->
+                <div id="section-transactions" class="glass-card">
+                    <div class="section-header">
+                        <h3><i class="fa-solid fa-receipt" style="color:#059669;"></i> {% if language == 'Kannada' %}ಹಣಕಾಸು ವಹಿವಾಟುಗಳು{% else %}Financial Transactions{% endif %}</h3>
+                        <a href="/pay" class="btn-outline"><i class="fa-solid fa-paper-plane"></i> {% if language == 'Kannada' %}ಹಣ ಪಾವತಿಸಿ{% else %}Make Payment{% endif %}</a>
+                    </div>
+                    <div id="history-activity-list" class="activity-list" style="margin-top: 0.5rem;">
+                        <div style="text-align:center; padding: 25px; color: #94a3b8;">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Loading transactions...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                let cachedData = null;
+
+                function filterHistoryTab(tabName) {
+                    document.querySelectorAll('.history-tab-btn').forEach(btn => btn.classList.remove('active'));
+                    const activeBtn = document.getElementById(`tab-${tabName}`);
+                    if (activeBtn) activeBtn.classList.add('active');
+
+                    const reqSec = document.getElementById('section-service-requests');
+                    const txnSec = document.getElementById('section-transactions');
+
+                    if (tabName === 'all') {
+                        reqSec.style.display = 'block';
+                        txnSec.style.display = 'block';
+                    } else if (tabName === 'requests') {
+                        reqSec.style.display = 'block';
+                        txnSec.style.display = 'none';
+                    } else if (tabName === 'transactions') {
+                        reqSec.style.display = 'none';
+                        txnSec.style.display = 'block';
+                    }
+                }
+
+                function getFriendlyRequestTitle(type, isKn) {
+                    if (isKn) {
+                        switch(type) {
+                            case 'AADHAAR_LINK': return 'ಆಧಾರ್ ಇ-ಕೆವೈಸಿ ಪರಿಶೀಲನೆ';
+                            case 'ATM_CARD': return 'ಎಟಿಎಂ ಡೆಬಿಟ್ ಕಾರ್ಡ್ ವಿನಂತಿ';
+                            case 'LOAN': return 'ವೈಯಕ್ತಿಕ ಸಾಲದ ಅರ್ಜಿ';
+                            case 'CHEQUE_BOOK': return 'ಚೆಕ್ ಬುಕ್ ವಿನಂತಿ';
+                            default: return 'ಬ್ಯಾಂಕಿಂಗ್ ಸೇವಾ ವಿನಂತಿ';
+                        }
+                    } else {
+                        switch(type) {
+                            case 'AADHAAR_LINK': return 'Aadhaar e-KYC Verification';
+                            case 'ATM_CARD': return 'ATM Debit Card Request';
+                            case 'LOAN': return 'Personal Loan Application';
+                            case 'CHEQUE_BOOK': return 'Cheque Book Request';
+                            default: return type.replace(/_/g, ' ') + ' Request';
+                        }
+                    }
+                }
+
+                function getRequestIconClass(type) {
+                    switch(type) {
+                        case 'AADHAAR_LINK': return { class: 'kyc', icon: 'fa-id-card' };
+                        case 'ATM_CARD': return { class: 'atm', icon: 'fa-credit-card' };
+                        case 'LOAN': return { class: 'loan', icon: 'fa-hand-holding-dollar' };
+                        default: return { class: 'other', icon: 'fa-bell' };
+                    }
+                }
+
+                async function loadHistory() {
+                    try {
+                        const currentLang = localStorage.getItem('siri_bank_lang') || 'Kannada';
+                        const isKn = (currentLang === 'Kannada');
+
+                        const response = await fetch('/api/user/summary');
+                        const data = await response.json();
+                        cachedData = data;
+
+                        const requestsList = document.getElementById('service-requests-list');
+                        const txnsList = document.getElementById('history-activity-list');
+
+                        const requests = data.recent_requests || [];
+                        const loans = data.loans || [];
+                        const transactions = data.transactions || [];
+
+                        // Combine requests & loans for service requests view
+                        const allServiceReqs = [
+                            ...requests.map(r => ({ ...r, kind: 'request' })),
+                            ...loans.map(l => ({
+                                id: l.id,
+                                request_type: 'LOAN',
+                                request_details: isKn ? `ಸಾಲದ ಉದ್ದೇಶ: ${l.purpose} | ಮೊತ್ತ: ₹${l.amount}` : `Loan for: ${l.purpose} | Amount: ₹${l.amount}`,
+                                status: l.status,
+                                created_at: l.created_at,
+                                kind: 'loan'
+                            }))
+                        ];
+
+                        // 1. Update Stats
+                        const pendingCount = allServiceReqs.filter(r => (r.status || '').toUpperCase() === 'PENDING').length;
+                        const approvedCount = allServiceReqs.filter(r => (r.status || '').toUpperCase() === 'APPROVED' || (r.status || '').toUpperCase() === 'ACTIVE').length;
+
+                        const elTotal = document.getElementById('stat-total-requests');
+                        if (elTotal) elTotal.innerText = allServiceReqs.length;
+                        const elPending = document.getElementById('stat-pending-requests');
+                        if (elPending) elPending.innerText = pendingCount;
+                        const elApproved = document.getElementById('stat-approved-requests');
+                        if (elApproved) elApproved.innerText = approvedCount;
+                        const elTxns = document.getElementById('stat-total-txns');
+                        if (elTxns) elTxns.innerText = transactions.length;
+
+                        const badgeReqs = document.getElementById('count-badge-reqs');
+                        if (badgeReqs) badgeReqs.innerText = allServiceReqs.length;
+                        const badgeTxns = document.getElementById('count-badge-txns');
+                        if (badgeTxns) badgeTxns.innerText = transactions.length;
+
+                        // 2. Render Service Requests
+                        if (requestsList) {
+                            if (allServiceReqs.length > 0) {
+                                requestsList.innerHTML = allServiceReqs.map(req => {
+                                    const iconData = getRequestIconClass(req.request_type);
+                                    const statusUpper = (req.status || 'PENDING').toUpperCase();
+                                    const title = getFriendlyRequestTitle(req.request_type, isKn);
+                                    let details = req.request_details || (isKn ? 'ಸಿರಿ ಸಹಾಯಕ ಮೂಲಕ ಸಲ್ಲಿಸಲಾದ ವಿನಂತಿ' : 'Request submitted via SIRI Assistant');
+                                    if (isKn) {
+                                        if (details.includes('Loan for:')) {
+                                            details = details.replace('Loan for:', 'ಸಾಲದ ಉದ್ದೇಶ:').replace('Amount:', 'ಮೊತ್ತ:');
+                                        } else if (details.includes('Simulated Aadhaar KYC')) {
+                                            details = 'ಸಿಮ್ಯುಲೇಟೆಡ್ ಆಧಾರ್ ಇ-ಕೆವೈಸಿ ಪರಿಶೀಲನೆ (ಒಟಿಪಿ ಪರಿಶೀಲಿಸಲಾಗಿದೆ)';
+                                        } else if (details.includes('Aadhaar verification request')) {
+                                            details = 'ಆಧಾರ್ ಪರಿಶೀಲನಾ ವಿನಂತಿ';
+                                        }
+                                    }
+                                    const dateStr = req.created_at || (isKn ? 'ಇತ್ತೀಚೆಗೆ' : 'Recently');
+
+                                    let statusIcon = 'fa-clock';
+                                    let statusText = isKn ? 'ಪರಿಶೀಲನೆಯಲ್ಲಿದೆ' : 'Pending Review';
+                                    if (statusUpper === 'APPROVED' || statusUpper === 'ACTIVE') {
+                                        statusIcon = 'fa-circle-check';
+                                        statusText = isKn ? 'ಅನುಮೋದಿತ ಮತ್ತು ಸಕ್ರಿಯ' : 'Approved & Active';
+                                    } else if (statusUpper === 'REJECTED') {
+                                        statusIcon = 'fa-circle-xmark';
+                                        statusText = isKn ? 'ತಿರಸ್ಕರಿಸಲಾಗಿದೆ' : 'Rejected';
+                                    }
+
+                                    let rejectionHtml = '';
+                                    if (statusUpper === 'REJECTED') {
+                                        const reason = req.rejection_reason || (isKn ? 'ಪರಿಶೀಲನಾ ಮಾನದಂಡಗಳು ಪೂರ್ಣಗೊಂಡಿಲ್ಲ.' : 'Verification criteria not satisfied.');
+                                        const retryLink = req.request_type === 'AADHAAR_LINK' ? `<a href="/aadhaar-kyc?retry=true"><i class="fa-solid fa-rotate-right"></i> ${isKn ? 'ಮತ್ತೆ ಕೆವೈಸಿ ಮಾಡಿ' : 'Retry KYC'}</a>` : '';
+                                        rejectionHtml = `
+                                            <div class="rejection-alert">
+                                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                                <span><strong>${isKn ? 'ಕಾರಣ:' : 'Reason:'}</strong> ${reason}</span>
+                                                ${retryLink}
+                                            </div>
+                                        `;
+                                    }
+
+                                    return `
+                                        <div class="request-item">
+                                            <div class="req-main">
+                                                <div class="req-icon ${iconData.class}">
+                                                    <i class="fa-solid ${iconData.icon}"></i>
+                                                </div>
+                                                <div class="req-info">
+                                                    <h4>${title}</h4>
+                                                    <div class="req-details">${details}</div>
+                                                    <div class="req-date"><i class="fa-regular fa-clock"></i> ${dateStr}</div>
+                                                    ${rejectionHtml}
+                                                </div>
+                                            </div>
+                                            <div class="req-status">
+                                                <span class="status-badge status-${statusUpper}">
+                                                    <i class="fa-solid ${statusIcon}"></i> ${statusText}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('');
+                            } else {
+                                requestsList.innerHTML = `
+                                    <div class="empty-history-card">
+                                        <i class="fa-regular fa-folder-open"></i>
+                                        <h4>${isKn ? "ಯಾವುದೇ ಸೇವಾ ವಿನಂತಿಗಳಿಲ್ಲ" : "No Service Requests Yet"}</h4>
+                                        <p>${isKn ? "ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಸೇವಾ ವಿನಂತಿಗಳನ್ನು ಸಲ್ಲಿಸಿಲ್ಲ. ಎಟಿಎಂ ಕಾರ್ಡ್, ಸಾಲ ಅಥವಾ ಆಧಾರ್ ಲಿಂಕ್ ಮಾಡಲು ನಮ್ಮ ಸಿರಿ AI ಸಹಾಯಕರನ್ನು ಬಳಸಿ." : "You haven't submitted any service requests yet. Complete your Aadhaar KYC or request an ATM card to access all features."}</p>
+                                        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                                            <a href="/aadhaar-kyc" class="btn-primary" style="padding:0.6rem 1.2rem; font-size:0.9rem;">
+                                                <i class="fa-solid fa-id-card"></i> ${isKn ? "ಆಧಾರ್ ಕೆವೈಸಿ ಮಾಡಿ" : "Complete Aadhaar KYC"}
+                                            </a>
+                                            <a href="/atm-services" class="btn-outline" style="padding:0.6rem 1.2rem; font-size:0.9rem;">
+                                                <i class="fa-solid fa-credit-card"></i> ${isKn ? "ಎಟಿಎಂ ಕಾರ್ಡ್ ವಿನಂತಿಸಿ" : "Request ATM Card"}
+                                            </a>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }
+
+                        // 3. Render Transactions
+                        if (txnsList) {
+                            if (transactions.length > 0) {
+                                txnsList.innerHTML = transactions.map(tx => {
+                                    const currentUserName = '{{ user_name }}';
+                                    const isCredit = tx.receiver_name === currentUserName || (!tx.sender_name && tx.receiver_name);
+                                    const icon = isCredit ? 'fa-arrow-down' : 'fa-arrow-up';
+                                    const color = isCredit ? '#10b981' : '#ef4444';
+                                    let desc = tx.description || (isKn ? 'ಹಣ ವರ್ಗಾವಣೆ' : 'Fund Transfer');
+                                    if (isKn) {
+                                        if (desc.includes('Transfer to')) desc = desc.replace('Transfer to', 'ವರ್ಗಾವಣೆ:');
+                                        else if (desc.includes('Received from')) desc = desc.replace('Received from', 'ಸ್ವೀಕರಿಸಲಾಗಿದೆ:');
+                                        else if (desc.includes('Deposit')) desc = desc.replace('Deposit', 'ಠೇವಣಿ');
+                                        else if (desc.includes('Withdrawal')) desc = desc.replace('Withdrawal', 'ಹಿಂಪಡೆಯುವಿಕೆ');
+                                    }
+                                    return `
+                                        <div class="activity-item">
+                                            <div class="activity-info">
+                                                <div class="activity-icon" style="background: ${color}20; color: ${color};">
+                                                    <i class="fa-solid ${icon}"></i>
+                                                </div>
+                                                <div class="activity-details">
+                                                    <div class="activity-title" style="font-weight:600; color:#0f172a;">${desc}</div>
+                                                    <div class="activity-time" style="font-size:0.775rem; color:#94a3b8;">
+                                                        ${tx.created_at} &bull; ${isKn ? 'ಉಲ್ಲೇಖ: TXN-' : 'Ref: TXN-'}${tx.id}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="activity-amount" style="color: ${color}; font-weight:700; font-size:1.05rem;">
+                                                ${isCredit ? '+' : '-'}₹${tx.amount}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('');
+                            } else {
+                                txnsList.innerHTML = `
+                                    <div class="empty-history-card">
+                                        <i class="fa-solid fa-receipt"></i>
+                                        <h4>${isKn ? "ಯಾವುದೇ ವಹಿವಾಟುಗಳು ಕಂಡುಬಂದಿಲ್ಲ" : "No Transactions Found"}</h4>
+                                        <p>${isKn ? "ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಹಣ ಪಾವತಿಸಿಲ್ಲ ಅಥವಾ ಸ್ವೀಕರಿಸಿಲ್ಲ. ಮೊಬೈಲ್ ಅಥವಾ ಖಾತೆ ಸಂಖ್ಯೆ ಬಳಸಿ ತಕ್ಷಣವೇ ಹಣ ಕಳುಹಿಸಬಹುದು." : "You have not made or received any payments yet. You can transfer money quickly using phone number or account number."}</p>
+                                        <a href="/pay" class="btn-primary" style="padding:0.6rem 1.2rem; font-size:0.9rem;">
+                                            <i class="fa-solid fa-paper-plane"></i> ${isKn ? "ಹಣ ವರ್ಗಾವಣೆ ಮಾಡಿ" : "Make a Transfer"}
+                                        </a>
+                                    </div>
+                                `;
+                            }
+                        }
+                    } catch (e) {
+                        console.error("History fetch error:", e);
+                        const requestsList = document.getElementById('service-requests-list');
+                        const txnsList = document.getElementById('history-activity-list');
+                        if (requestsList) requestsList.innerHTML = '<div style="text-align:center; padding:20px; color:#ef4444;">Failed to load requests. Please try again.</div>';
+                        if (txnsList) txnsList.innerHTML = '<div style="text-align:center; padding:20px; color:#ef4444;">Failed to load transactions.</div>';
+                    }
+                }
+
+                window.loadHistory = loadHistory;
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', loadHistory);
+                } else {
+                    loadHistory();
+                }
+            </script>
+        </main>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=3.0"></script>
+</body>
+</html>
